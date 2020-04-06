@@ -26,8 +26,7 @@ schema_view = get_swagger_view(title='Dots Core API')
 urlpatterns = [
     # register admin site
     path('', admin.site.urls),
-    path('api/v1/documentation/', schema_view),
-    # jwt urls
+    path('docs/', schema_view),
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
