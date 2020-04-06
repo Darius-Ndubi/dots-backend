@@ -1,4 +1,4 @@
-"""dots1 URL Configuration
+"""dots URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -15,7 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from rest_framework_swagger.views import get_swagger_view
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView, TokenRefreshView,
+)
+
+schema_view = get_swagger_view(title='Dots Core API')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # register admin site
+    path('', admin.site.urls),
+    path('api/v1/documentation/', schema_view),
+    # jwt urls
+    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
