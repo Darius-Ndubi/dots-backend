@@ -1,4 +1,5 @@
-# dots-backend
+# dots-backend [![codecov](https://codecov.io/gh/hikaya-io/dots-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/hikaya-io/dots-backend)
+
 
 ## How to setup
 

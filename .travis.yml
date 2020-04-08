@@ -1,0 +1,19 @@
+# Set the build language to Python
+language: python
+
+# Set the python version to 3.7
+python: 3.7
+
+# Install the codecov pip dependency
+install:
+  - pip install -r requirements.txt
+  - pip install -r test_requirements.txt
+
+# Run the unit test
+script:
+  - coverage run --source='.' manage.py test
+
+# Push the results back to codecov
+after_success:
+  - coverage xml
+  - bash <(curl -s https://codecov.io/bash) -y codecov.yml

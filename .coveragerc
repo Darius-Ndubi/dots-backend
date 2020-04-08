@@ -1,0 +1,23 @@
+[run]
+data_file = reports/.coverage
+
+omit =
+    */migrations/*
+    */tests/*
+    */fixtures/*
+    */management/*
+    */__init__.py
+    */urls.py
+    */tests.py
+    */test.py
+    manage.py
+
+
+#concurrency=multiprocessing
+
+[report]
+ignore_errors = True
+show_missing = True
+
+[xml]
+output = coverage.xml
