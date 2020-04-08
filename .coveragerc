@@ -12,6 +12,7 @@ omit =
     */test.py
     manage.py
     dots/*
+    core/apps.py
 
 
 #concurrency=multiprocessing
