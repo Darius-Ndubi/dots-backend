@@ -11,6 +11,7 @@ omit =
     */tests.py
     */test.py
     manage.py
+    dots/*
 
 
 #concurrency=multiprocessing
