@@ -24,11 +24,11 @@ class UserRegistrationSerializer(serializers.Serializer):
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError({'confirm_password': ['Passwords do not match!']})
+            raise serializers.ValidationError({'confirm_password': ['Passwords do not match.']})
         if User.objects.filter(username__iexact=data['username']).exists():
-            raise serializers.ValidationError({'username': ['Username already in use!']})
+            raise serializers.ValidationError({'username': ['Username already in use.']})
         if User.objects.filter(email__iexact=data['email']).exists():
-            raise serializers.ValidationError({'username': ['Email already in use!']})
+            raise serializers.ValidationError({'email': ['Email already in use.']})
         return data
 
     def create(self, validated_data):
