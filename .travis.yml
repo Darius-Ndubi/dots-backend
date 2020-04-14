@@ -1,19 +1,29 @@
 # Set the build language to Python
-language: python
+language: minimal
 
-# Set the python version to 3.7
-python: 3.7
+jobs:
+  include:
+    - stage: Build_and_test 
+    - script:
+      - chmod +x ci-scripts/run_tests.sh && ./ci-scripts/run_tests.sh
 
-# Install the codecov pip dependency
-install:
-  - pip install -r requirements.txt
-  - pip install -r test_requirements.txt
+    - stage: Setup_infrastructure
+    - script:
+      - export VER="0.12.21"
+      - wget https://releases.hashicorp.com/terraform/${VER}/terraform_${VER}_linux_amd64.zip
+      - unzip terraform_${VER}_linux_amd64.zip
+      - sudo mv terraform /usr/local/bin/
+      - chmod +x ci-scripts/create_infrastructure.sh && ./ci-scripts/create_infrastructure.sh
 
-# Run the unit test
-script:
-  - coverage run --source='.' manage.py test
-
-# Push the results back to codecov
-after_success:
-  - coverage xml
-  - bash <(curl -s https://codecov.io/bash) -y codecov.yml
+    - stage: Build_docker_image
+      services:
+        - docker
+    - script:
+      - chmod +x ci-scripts/build_docker_image.sh && ./ci-scripts/build_docker_image.sh
+      
+    - stage: Deploy
+      services:
+        - docker
+    - script:
+      - export FILE_PATH="/home/travis/.docker/config.json"
+      - chmod +x ci-scripts/deployment.sh && ./ci-scripts/deployment.sh

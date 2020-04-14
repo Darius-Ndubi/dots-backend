@@ -9,6 +9,17 @@
 - Optional create a new superuser using `python manage.py createsuperuser`
 - Run django server `python manage.py runserver`
 
+### Docker setup
+
+#### Prerequisites
+- Ensure you stop postgresql from running as this will prevent postgres container from starting up. On linux run `sudo service postgresql stop` enter your password and proceed
+
+#### Setting Up
+- Check on the .env.dev_sample and rename it to .env.dev. This will be needed to add more variables to the dev docker environment
+- Inside the project directory run the command `docker-compose build` to build application image
+- To start dev env docker environment run `docker-compose up` wait until the log shows the IP and port the app is serving on. Access the API on `0.0.0.0:8000`
+- To stop running the dev environment run press `Ctrl+c` in the docker environment terminal to stop the containers.
+
 
 ## How to use swagger
 Once the server is running, you can access swagger at http://127.0.0.1:8000/docs
