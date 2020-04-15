@@ -1,5 +1,8 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -7,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'last_login', 'full_name')
+        fields = ('username', 'email', 'first_name', 'last_name', 'last_login', 'full_name', 'title')
         read_only_fields = ('username', 'last_login', 'full_name')
 
     def get_full_name(self, obj):
