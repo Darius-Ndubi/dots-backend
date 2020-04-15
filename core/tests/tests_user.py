@@ -44,6 +44,7 @@ class UserTests(APITestCase):
         ('email', 'user1@foo.com'),
         ('first_name', 'First1'),
         ('last_name', 'First1'),
+        ('title', 'SSE')
     )
     @unpack
     def test_user_update(self, field, value):
