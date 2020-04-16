@@ -1,7 +1,9 @@
 from ddt import ddt, data, unpack
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import AccessToken
+
+User = get_user_model()
 
 
 def assert_user(user=None, response=None):
@@ -42,6 +44,7 @@ class UserTests(APITestCase):
         ('email', 'user1@foo.com'),
         ('first_name', 'First1'),
         ('last_name', 'First1'),
+        ('title', 'SSE')
     )
     @unpack
     def test_user_update(self, field, value):

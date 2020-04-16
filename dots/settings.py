@@ -57,6 +57,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'dots.urls'
+AUTH_USER_MODEL = 'core.User'
 
 TEMPLATES = [
     {
