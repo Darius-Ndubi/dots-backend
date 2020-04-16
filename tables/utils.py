@@ -2,6 +2,21 @@ import base64
 import io
 import csv
 
+from django.conf import settings as app_settings
+
+from pymongo import MongoClient
+
+
+def connect_to_mongo():
+    """
+    Establish Mongo Connection
+    :return db_client: mongo connection
+    """
+    mongo_client = MongoClient(app_settings.MONGO_URI)
+    db_client = mongo_client[app_settings.MONGO_DB_NAME]
+
+    return db_client
+
 
 def process_data(data, source):
     if source is not None and source.lower() == 'csv':

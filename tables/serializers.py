@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.conf import settings as app_settings
 from pymongo import MongoClient
 from .models import Table
+from .utils import connect_to_mongo
 
 
 class TableSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,9 +20,8 @@ class TableSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
     def get_data(self, obj):
-        mongo_client = MongoClient(app_settings.MONGO_URI)
-        db_client = mongo_client[app_settings.MONGO_DB_NAME]
-        connection = db_client[obj.name.replace(' ', '_')]
+        mongo_client = connect_to_mongo()
+        connection = mongo_client[obj.name.replace(' ', '_')]
         data = connection.find_one({'table_uuid': str(obj.table_uuid)})
         # temporarily delete _id property
         if data is not None:
