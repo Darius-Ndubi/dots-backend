@@ -22,7 +22,7 @@ class Table(models.Model):
     source = models.CharField(max_length=20, choices=TABLE_SOURCES)
     unique_column = models.CharField(max_length=100, null=True, blank=True)
     owner = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
-    metadata = JSONField()
+    metadata = JSONField(null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
 

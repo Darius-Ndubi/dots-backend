@@ -4,7 +4,7 @@ import csv
 
 
 def process_data(data, source):
-    if source is not None and source.toLower() == 'csv':
+    if source is not None and source.lower() == 'csv':
         data = process_csv_data(data)
     else:
         data = None
@@ -13,11 +13,11 @@ def process_data(data, source):
 
 
 def process_csv_data(data):
-    if data['file'] and data['file']['value']:
-        content = base64.b64decode(data['file']['value'])
+    if data and data['value']:
+        content = base64.b64decode(data['value'])
         io_string = io.StringIO(content.decode("utf-8"))
         try:
-            reader = csv.DictReader(io_string, delimeter=',')
+            reader = csv.DictReader(io_string)
             dict_data = [row for row in reader]
         except Exception as e:
             raise Exception(e)

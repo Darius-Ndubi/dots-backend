@@ -13,6 +13,7 @@ omit =
     manage.py
     dots/*
     core/apps.py
+    dots/apps.py
 
 
 #concurrency=multiprocessing

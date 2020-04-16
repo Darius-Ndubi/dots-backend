@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'corsheaders',
-    'core'
+    'core',
+    'tables'
 ]
 
 MIDDLEWARE = [
@@ -89,7 +90,8 @@ DATABASES = {
 }
 
 # MongoDB settings
-MONGO_URI = os.environ.get('DOTS_MONGO_URI', '')
+MONGO_URI = os.environ.get('DOTS_MONGO_URI')
+MONGO_DB_NAME = os.environ.get('DOTS_MONGO_DB_NAME')
 
 
 # Password validation

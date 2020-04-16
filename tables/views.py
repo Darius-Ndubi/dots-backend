@@ -24,8 +24,10 @@ class TableViewSet(viewsets.ModelViewSet):
     lookup_field = 'table_uuid'
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset().filter(owner=request.user)
-        serializer = TableSerializer(queryset, many=True)
+        queryset = self.get_queryset()
+        serializer = TableSerializer(
+            queryset, many=True, context={'request': self.request}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -38,14 +40,24 @@ class TableViewSet(viewsets.ModelViewSet):
         except (ValueError, KeyError) as e:
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.get_serializer(data=request_data)
+        request_data['owner'] = request.user.id
+        serializer = self.get_serializer(
+            data=request_data, context={'request': self.request}
+        )
 
         if serializer.is_valid(raise_exception=True):
             try:
                 self.perform_create(serializer)
+
+                # generate mongoData
+                mongo_data = {
+                    'data': data,
+                    'table_uuid': str(serializer.data.get('table_uuid'))
+                }
                 mongo_client = MongoClient(app_settings.MONGO_URI)
-                connection = mongo_client[request_data.name]
-                connection.insert_many(data)
+                db_client = mongo_client[app_settings.MONGO_DB_NAME]
+                connection = db_client[request_data.get('name').replace(' ', '_')]
+                connection.insert_one(mongo_data)
 
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
@@ -59,5 +71,4 @@ class TableViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # set owner
-        user = self.request.user
-        serializer.save(owner=user.id)
+        serializer.save()
