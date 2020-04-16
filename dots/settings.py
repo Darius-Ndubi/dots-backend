@@ -87,6 +87,9 @@ DATABASES = {
     }
 }
 
+# MongoDB settings
+MONGO_URI = os.environ.get('DOTS_MONGO_URI', '')
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
