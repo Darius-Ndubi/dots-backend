@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db:
+    restart: always
+    image: postgres:11
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=dotsdb
+      - POSTGRES_DB=dots
+    volumes:
+      - ./dots_db:/var/lib/postgresql/data
+    ports:
+      - '5435:5432'
+    expose:
+      - '5435'
+  api:
+    restart: always
+    build:
+      context: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/dots-api
+    environment:
+      DB_NAME: 'dots'
+      DB_USER: 'postgres'
+      DB_PASSWORD: 'dotsdb'
+      DB_HOST: 'db'
+      DB_PORT: 5432
+      SECRET_KEY: 'ifh5xrpyh(^g5%bw#fkunjb%!(i9=ax(_whvu_&g(ljzq-#ol)'
+    depends_on:
+      - db
+    entrypoint: ["/bin/bash", "/dots-api/.docker/start.sh"]
+    stdin_open: true
+    tty: true
