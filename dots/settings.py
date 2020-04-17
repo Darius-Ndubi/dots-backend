@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'corsheaders',
-    'core'
+    'core',
+    'tables'
 ]
 
 MIDDLEWARE = [
@@ -96,6 +97,10 @@ DATABASES = {
 if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage
     DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
     DATABASES['default']['NAME'] = ':memory:'
+
+# MongoDB settings
+MONGO_URI = os.environ.get('DOTS_MONGO_URI')
+MONGO_DB_NAME = os.environ.get('DOTS_MONGO_DB_NAME')
 
 
 # Password validation
