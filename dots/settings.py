@@ -99,8 +99,9 @@ if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing an
     DATABASES['default']['NAME'] = ':memory:'
 
 # MongoDB settings
-MONGO_URI = os.environ.get('DOTS_MONGO_URI')
-MONGO_DB_NAME = os.environ.get('DOTS_MONGO_DB_NAME')
+# Will fix this
+# MONGO_URI = os.environ.get('DOTS_MONGO_URI')
+# MONGO_DB_NAME = os.environ.get('DOTS_MONGO_DB_NAME')
 
 
 # Password validation
