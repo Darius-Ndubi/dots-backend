@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
+from core.models import Workspace
+
+
 User = get_user_model()
 
 
@@ -37,3 +40,21 @@ class UserRegistrationSerializer(serializers.Serializer):
     def create(self, validated_data):
         validated_data.pop('confirm_password')
         return User.objects.create_user(**validated_data)
+
+
+class WorkspaceSerializer(serializers.ModelSerializer):
+    is_default = serializers.SerializerMethodField('get_is_default')
+    role = serializers.SerializerMethodField('get_role')
+
+    class Meta:
+        model = Workspace
+        fields = '__all__'
+
+    def get_membership(self, ws):
+        return ws.membership.filter(workspace=ws, user=self.context['request'].user).first()
+
+    def get_is_default(self, ws):
+        return self.get_membership(ws).is_default
+
+    def get_role(self, ws):
+        return self.get_membership(ws).role
