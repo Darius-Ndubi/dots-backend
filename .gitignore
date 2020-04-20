@@ -6,3 +6,4 @@ venv/
 reports/*
 .env
 dots_db/
+dots/local_settings.py
