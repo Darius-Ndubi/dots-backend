@@ -10,5 +10,26 @@ class User(AbstractUser):
 class Workspace(models.Model):
     name = models.CharField(_('name'), max_length=200)
     description = models.TextField(blank=True)
+    location = models.TextField(blank=True)
     url = models.URLField(max_length=500)
-    workspace_url = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, null=True)
+
+
+class Membership(models.Model):
+    ADMIN = 'ADMIN'
+    OWNER = 'OWNER'
+    MEMBER = 'MEMBER'
+
+    ROLE_CHOICES = (
+        (ADMIN, 'Admin'),
+        (OWNER, 'Owner'),
+        (MEMBER, 'Member'),
+    )
+    is_active = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False)
+    user = models.ForeignKey(User, related_name="membership", on_delete=models.DO_NOTHING)
+    workspace = models.ForeignKey(Workspace, related_name="membership", on_delete=models.DO_NOTHING)
+    role = models.CharField(max_length=6, default=MEMBER, choices=ROLE_CHOICES)
+
+    class Meta:
+        unique_together = ('user', 'workspace',)
