@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
-from rest_framework import status, mixins
+from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from core import serializers
@@ -34,12 +36,13 @@ class UserRegistrationView(GenericAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-class WorkspaceView(ListCreateAPIView, RetrieveUpdateAPIView):
+class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
     serializer_class = serializers.WorkspaceSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Workspace.objects.filter()
 
     def get_queryset(self):
-        return Workspace.objects.filter(
+        return self.queryset.filter(
             membership__user=self.request.user,
             membership__is_active=True
         )
