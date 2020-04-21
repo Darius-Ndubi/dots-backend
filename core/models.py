@@ -11,8 +11,8 @@ class Workspace(models.Model):
     name = models.CharField(_('name'), max_length=200)
     description = models.TextField(blank=True)
     location = models.TextField(blank=True)
-    url = models.URLField(max_length=500)
-    slug = models.SlugField(unique=True, null=True)
+    url = models.URLField(max_length=500, blank=True)
+    slug = models.SlugField(unique=True)
 
 
 class Membership(models.Model):
