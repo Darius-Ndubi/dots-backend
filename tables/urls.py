@@ -1,8 +1,7 @@
-from rest_framework import routers
-
+from dots.router import OptionalSlashRouter
 from .views import TableViewSet
 
-router = routers.SimpleRouter()
+router = OptionalSlashRouter()
 
 router.register('tables', TableViewSet)
 

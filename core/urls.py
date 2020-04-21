@@ -1,12 +1,11 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from dots.router import OptionalSlashRouter
 from . import views
 
-from rest_framework.routers import DefaultRouter
 
-
-api_router = DefaultRouter()
+api_router = OptionalSlashRouter()
 api_router.register('workspace', views.WorkspaceView)
 
 
