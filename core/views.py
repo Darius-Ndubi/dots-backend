@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from core import serializers
 from core.models import Workspace, Membership
+from core.permissions import WorkspacePermissions
 
 User = get_user_model()
 
@@ -38,7 +39,7 @@ class UserRegistrationView(GenericAPIView):
 
 class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
     serializer_class = serializers.WorkspaceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, WorkspacePermissions]
     queryset = Workspace.objects.filter()
 
     def get_queryset(self):
