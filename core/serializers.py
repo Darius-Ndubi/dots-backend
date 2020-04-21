@@ -50,11 +50,11 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         model = Workspace
         fields = '__all__'
 
-    def get_membership(self, ws):
-        return ws.membership.filter(workspace=ws, user=self.context['request'].user).first()
+    def _membership(self, ws):
+        return ws.membership.filter(user=self.context['request'].user).first()
 
     def get_is_default(self, ws):
-        return self.get_membership(ws).is_default
+        return self._membership(ws).is_default
 
     def get_role(self, ws):
-        return self.get_membership(ws).role
+        return self._membership(ws).role
