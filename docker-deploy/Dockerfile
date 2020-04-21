@@ -59,7 +59,11 @@ RUN rm -rf /root/.cache
 
 COPY . .
 
-RUN chmod 777 docker-deploy/start.sh 
+RUN chmod 777 docker-deploy/start.sh  && \
+    source /root/.local/share/virtualenvs/dots-api-*/bin/activate && \
+    source .env.deploy && \
+    mkdir static || echo "directory exists" && \
+    echo 'yes' | python3 manage.py collectstatic
 
 #  command used to create the virtual environment before the application is started
 CMD ["/bin/bash","-c","source /root/.local/share/virtualenvs/dots-api-*/bin/activate"]

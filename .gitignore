@@ -5,4 +5,5 @@ venv/
 .coverage
 reports/*
 .env
-dots_db/
+dots_postgres_db/
+dots_mongo_db/
