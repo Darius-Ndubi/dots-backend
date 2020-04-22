@@ -43,8 +43,8 @@ class UserRegistrationSerializer(serializers.Serializer):
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
-    is_default = serializers.SerializerMethodField('get_is_default')
-    role = serializers.SerializerMethodField('get_role')
+    is_default = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = Workspace

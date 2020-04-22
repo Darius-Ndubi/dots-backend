@@ -27,8 +27,8 @@ class Membership(models.Model):
     )
     is_active = models.BooleanField(default=True)
     is_default = models.BooleanField(default=False)
-    user = models.ForeignKey(User, related_name="membership", on_delete=models.DO_NOTHING)
-    workspace = models.ForeignKey(Workspace, related_name="membership", on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, related_name="membership", on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, related_name="membership", on_delete=models.CASCADE)
     role = models.CharField(max_length=6, default=MEMBER, choices=ROLE_CHOICES)
 
     class Meta:
