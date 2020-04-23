@@ -36,3 +36,11 @@ class WorkspaceTests(APITestCase):
         workspace = response.json()
         assert response.status_code == 200
         assert workspace[0]['role'] == role
+
+    def test_workspace_creator_as_owner(self):
+        response = self.client.post('/api/workspace',
+                                    {"name": "Test", "slug": "test"},
+                                    format='json')
+        workspace = response.json()
+        assert response.status_code == 201
+        assert workspace['role'] == 'OWNER'
