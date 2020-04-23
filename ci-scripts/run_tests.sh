@@ -5,9 +5,9 @@ set -ex
 #@--- install and setup python ---@#
 setup_python() {
     sudo add-apt-repository ppa:deadsnakes/ppa -y
-    sudo apt-get update -y 
-    sudo apt-get install software-properties-common python-software-properties -y 
-    sudo apt-get install python3.7 -y 
+    sudo apt-get update -y
+    sudo apt-get install software-properties-common python-software-properties -y
+    sudo apt-get install python3.7 -y
     sudo apt-get install python3-pip python3-setuptools -y
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 2
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 10
@@ -25,7 +25,7 @@ install_activate_virtualenv() {
 #@--- run tests --- @#
 run_tests() {
     echo "++++++++++++++++ Run tests ++++++++++++++++"
-    coverage run --source='.' manage.py test
+    coverage run --source='.' manage.py test core
 }
 
 #@--- function to report coverage ---@#
