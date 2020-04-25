@@ -31,8 +31,8 @@ build_and_push_image() {
         echo export DB_USER=${DB_USER_DEV} >> .env.deploy
         echo export DB_PASSWORD=${DB_PASSWORD_DEV} >> .env.deploy
         echo export DB_HOST=${DB_HOST_DEV} >> .env.deploy
-        echo export MONGO_URI=${DOTS_MONGO_URI_DEV} >> .env.deploy
-        echo export MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_DEV} >> .env.deploy
+        echo export DOTS_MONGO_URI=${DOTS_MONGO_URI_DEV} >> .env.deploy
+        echo export DOTS_MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_DEV} >> .env.deploy
         export APPLICATION_ENV=${APPLICATION_ENV_DEV} >> .env.deploy
         
 
