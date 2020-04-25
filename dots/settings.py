@@ -171,6 +171,11 @@ SWAGGER_SETTINGS = {
 }
 
 
+try:
+    from .local_settings import *
+except:
+    pass
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -195,3 +200,4 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 CORS_ORIGIN_ALLOW_ALL = True
+

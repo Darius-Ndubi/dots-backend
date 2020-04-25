@@ -5,5 +5,7 @@ venv/
 .coverage
 reports/*
 .env
+dots_db/
+dots/local_settings.py
 dots_postgres_db/
 dots_mongo_db/
