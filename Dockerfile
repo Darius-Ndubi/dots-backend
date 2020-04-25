@@ -52,7 +52,6 @@ WORKDIR /dots-api
 
 COPY --from=build /root /root
 
-
 RUN export PATH="/root/.pyenv/versions/3.7.7:$PATH" 
 
 RUN ls -ahl /root
@@ -60,3 +59,8 @@ RUN ls -ahl /root
 RUN rm -rf /root/.cache
 
 COPY . .
+
+RUN source /root/.local/share/virtualenvs/dots-api-*/bin/activate && \
+    source .env.dev && \
+    mkdir static || echo "directory exists" && \
+    echo 'yes' | python3 manage.py collectstatic 
