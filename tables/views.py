@@ -58,9 +58,7 @@ class TableViewSet(viewsets.ModelViewSet):
         # set owner
         serializer.save()
 
-    def retrieve(self, request, table_uuid=None):
-        table = Table.objects.get(table_uuid=table_uuid)
-        serializer = TableDetailSerializer(
-            table, context={'request': request}
-        )
-        return Response(serializer.data)
+    def get_serializer_class(self):
+        if hasattr(self, 'action') and self.action == 'retrieve':
+            return TableDetailSerializer
+        return TableSerializer

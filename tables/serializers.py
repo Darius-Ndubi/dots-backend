@@ -8,6 +8,7 @@ from .utils import connect_to_mongo
 
 class TableSerializer(serializers.HyperlinkedModelSerializer):
     table_uuid = serializers.ReadOnlyField()
+    id = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField()
     url = serializers.HyperlinkedIdentityField(
         view_name='table-detail',
@@ -35,7 +36,6 @@ class TableDetailSerializer(serializers.HyperlinkedModelSerializer):
         connection = mongo_client[obj.name.replace(' ', '_')]
         data = connection.find_one({'table_uuid': str(obj.table_uuid)})
         # temporarily delete _id property
-        print('DataL:::', data)
         if data is not None:
             del data['_id']
         return data
