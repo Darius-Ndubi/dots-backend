@@ -48,6 +48,7 @@ main() {
 
     #@--- Report Coverage ---@#
     report_coverage
+    exit 0
 }
 
 #@--- Run main function ---@#
