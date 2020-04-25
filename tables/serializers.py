@@ -13,6 +13,17 @@ class TableSerializer(serializers.HyperlinkedModelSerializer):
         view_name='table-detail',
         lookup_field='table_uuid'
     )
+
+    class Meta:
+        model = Table
+        fields = '__all__'
+
+
+class TableDetailSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='table-detail',
+        lookup_field='table_uuid'
+    )
     data = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -24,6 +35,7 @@ class TableSerializer(serializers.HyperlinkedModelSerializer):
         connection = mongo_client[obj.name.replace(' ', '_')]
         data = connection.find_one({'table_uuid': str(obj.table_uuid)})
         # temporarily delete _id property
+        print('DataL:::', data)
         if data is not None:
             del data['_id']
         return data
