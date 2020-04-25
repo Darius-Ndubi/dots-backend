@@ -106,5 +106,3 @@ class WorkspaceTests(APITestCase):
             assert getattr(ms, field) == api_ws[field]
         else:
             assert api_ws[field] == value
-
-
