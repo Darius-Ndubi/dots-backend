@@ -50,4 +50,6 @@ class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
 
     def perform_create(self, serializer):
         ws = serializer.save()
-        Membership(workspace=ws, user=self.request.user, role=Membership.OWNER).save()
+        Membership.objects.filter(user=self.request.user).update(is_default=False)
+        Membership(workspace=ws, user=self.request.user,
+                   role=Membership.OWNER, is_default=True).save()
