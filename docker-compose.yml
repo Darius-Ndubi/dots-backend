@@ -1,6 +1,6 @@
-version: '3'
+version: '3.7'
 services:
-  db:
+  postgres-db:
     restart: always
     image: postgres:11
     environment:
@@ -8,11 +8,26 @@ services:
       - POSTGRES_PASSWORD=dotsdb
       - POSTGRES_DB=dots
     volumes:
-      - ./dots_db:/var/lib/postgresql/data
+      - ./dots_postgres_db:/var/lib/postgresql/data
     ports:
       - '5435:5432'
     expose:
       - '5435'
+
+  mongo-db:
+    restart: always
+    image: mongo:4.2.5
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: dotsdb
+      MONGO_INITDB: dots
+    ports:
+      - 27018:27017
+    volumes:
+      - ./dots_mongo_db:/data/db
+    expose:
+      - '27018'
+
   api:
     restart: always
     build:
@@ -25,11 +40,14 @@ services:
       DB_NAME: 'dots'
       DB_USER: 'postgres'
       DB_PASSWORD: 'dotsdb'
-      DB_HOST: 'db'
+      DB_HOST: 'postgres-db'
       DB_PORT: 5432
       SECRET_KEY: 'ifh5xrpyh(^g5%bw#fkunjb%!(i9=ax(_whvu_&g(ljzq-#ol)'
+      DOTS_MONGO_URI: 'mongodb://mongo-db:27017'
+      DOTS_MONGO_DB_NAME: 'dots'
     depends_on:
-      - db
+      - postgres-db
+      - mongo-db
     entrypoint: ["/bin/bash", "/dots-api/.docker/start.sh"]
     stdin_open: true
     tty: true
