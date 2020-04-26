@@ -6,10 +6,8 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 
-from pymongo import MongoClient
-
 from .models import Table
-from .serializers import TableSerializer
+from .serializers import (TableSerializer, TableDetailSerializer)
 from .utils import (process_data, connect_to_mongo, )
 
 
@@ -59,3 +57,8 @@ class TableViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # set owner
         serializer.save()
+
+    def get_serializer_class(self):
+        if hasattr(self, 'action') and self.action == 'retrieve':
+            return TableDetailSerializer
+        return TableSerializer

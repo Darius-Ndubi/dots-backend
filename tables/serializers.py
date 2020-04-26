@@ -8,7 +8,19 @@ from .utils import connect_to_mongo
 
 class TableSerializer(serializers.HyperlinkedModelSerializer):
     table_uuid = serializers.ReadOnlyField()
+    id = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField()
+    url = serializers.HyperlinkedIdentityField(
+        view_name='table-detail',
+        lookup_field='table_uuid'
+    )
+
+    class Meta:
+        model = Table
+        fields = '__all__'
+
+
+class TableDetailSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='table-detail',
         lookup_field='table_uuid'
