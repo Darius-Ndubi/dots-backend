@@ -59,22 +59,9 @@ class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
 class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
     serializer_class = serializers.WorkspaceUserSerializer
     permission_classes = [IsAuthenticated, WorkspaceUserPermissions]
-    queryset = User.objects.filter()
+    queryset = Membership.objects.filter()
 
     def get_queryset(self):
-        membership = Membership.objects.filter(
-            workspace=self.kwargs['workspace_id'], user=OuterRef('id')
-        ).values('role')
         return self.queryset.filter(
-            membership__workspace=self.kwargs['workspace_id'],
-        ).annotate(role=Subquery(membership))
-
-    def perform_update(self, serializer):
-        serializer.save()
-        new_role = serializer.validated_data.get('role')
-        if not new_role:
-            return
-
-        workspace_id = self.kwargs['workspace_id']
-        user_id = self.kwargs['pk']
-        Membership.objects.filter(workspace=workspace_id, user=user_id).update(role=new_role)
+            workspace=self.kwargs['workspace_id'],
+        ).select_related('user')

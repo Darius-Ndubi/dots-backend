@@ -61,12 +61,23 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
 class WorkspaceUserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
-    role = serializers.ChoiceField([Membership.MEMBER, Membership.ADMIN, Membership.OWNER], required=False)
+    username = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    last_login = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Membership
         fields = ('id', 'username', 'email', 'last_login', 'full_name', 'is_active', 'role')
         read_only_fields = ('id', 'username', 'email', 'last_login', 'full_name')
 
-    def get_full_name(self, obj):
-        return f'{obj.first_name} {obj.last_name}'
+    def get_full_name(self, m):
+        return f'{m.user.first_name} {m.user.last_name}'
+
+    def get_username(self, m):
+        return m.user.username
+
+    def get_email(self, m):
+        return m.user.email
+
+    def get_last_login(self, m):
+        return m.user.last_login

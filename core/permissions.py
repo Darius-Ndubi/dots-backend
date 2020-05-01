@@ -23,22 +23,23 @@ class WorkspacePermissions(BasePermission):
 class WorkspaceUserPermissions(BasePermission):
     def has_permission(self, request, view):
         workspace_id = view.kwargs.get('workspace_id')
+        # For the sake of swagger
+        if not workspace_id:
+            return True
+
         return Membership.objects.filter(
             workspace=workspace_id, is_active=True, user=request.user
         ).exists()
 
-    def has_object_permission(self, request, view, user):
+    def has_object_permission(self, request, view, user_m):
         workspace_id = view.kwargs.get('workspace_id')
         # For the sake of swagger
         if not workspace_id:
             return True
 
         # Can not update your own status
-        if user.id == request.user.id:
+        if user_m.user.id == request.user.id:
             return False
-
-        # Only Owner and Admins can update the workspace user
-        user_m = user.membership.filter(workspace_id=workspace_id).first()
 
         admin_m = Membership.objects.filter(
             user=request.user,
