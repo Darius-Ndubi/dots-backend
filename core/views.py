@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView, ListAPIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from core import serializers
 from core.models import Workspace, Membership
-from core.permissions import WorkspacePermissions
+from core.permissions import WorkspacePermissions, WorkspaceUserPermissions
 
 User = get_user_model()
 
@@ -53,3 +53,15 @@ class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
         Membership.objects.filter(user=self.request.user).update(is_default=False)
         Membership(workspace=ws, user=self.request.user,
                    role=Membership.OWNER, is_default=True).save()
+
+
+class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
+    serializer_class = serializers.WorkspaceUserSerializer
+    permission_classes = [IsAuthenticated, WorkspaceUserPermissions]
+    queryset = User.objects.filter()
+
+    def get_queryset(self):
+
+        return self.queryset.filter(
+            membership__workspace=self.kwargs['workspace_id'],
+        )

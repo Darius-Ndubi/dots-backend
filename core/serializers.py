@@ -58,3 +58,15 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     def get_role(self, ws):
         return self._membership(ws).role
+
+
+class WorkspaceUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField('get_full_name')
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'last_login', 'full_name', 'is_active')
+        read_only_fields = ('id', 'username', 'email', 'last_login', 'full_name')
+
+    def get_full_name(self, obj):
+        return f'{obj.first_name} {obj.last_name}'
