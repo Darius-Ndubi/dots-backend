@@ -29,6 +29,10 @@ class WorkspaceUserPermissions(BasePermission):
 
     def has_object_permission(self, request, view, user):
         workspace_id = view.kwargs.get('workspace_id')
+        # For the sake of swagger
+        if not workspace_id:
+            return True
+
         # Can not update your own status
         if user.id == request.user.id:
             return False
@@ -47,12 +51,11 @@ class WorkspaceUserPermissions(BasePermission):
         if not admin_m:
             return False
 
-        # If the user who is performing action has not higher permissions than the
-        # resource they are trying to update then deny permissions
-        if admin_m.role == Membership.OWNER and user_m.role == Membership.OWNER:
-            return False
-
-        if admin_m.role == Membership.ADMIN and user_m.role != Membership.MEMBER:
+        new_role = request.data.get('role')
+        # Admins can't promote to owner or demote owner to any role
+        if admin_m.role == Membership.ADMIN and (
+                user_m.role == Membership.OWNER or new_role == Membership.OWNER
+        ):
             return False
 
         return True

@@ -2,14 +2,13 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from core.models import Workspace
-
+from core.models import Workspace, Membership
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField('get_full_name')
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -61,12 +60,16 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
 
 class WorkspaceUserSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField('get_full_name')
+    full_name = serializers.SerializerMethodField()
+    role = serializers.ChoiceField([Membership.MEMBER, Membership.ADMIN, Membership.OWNER], required=False)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'last_login', 'full_name', 'is_active')
+        fields = ('id', 'username', 'email', 'last_login', 'full_name', 'is_active', 'role')
         read_only_fields = ('id', 'username', 'email', 'last_login', 'full_name')
 
     def get_full_name(self, obj):
         return f'{obj.first_name} {obj.last_name}'
+
+    def save(self, **kwargs):
+        super().save(**kwargs)

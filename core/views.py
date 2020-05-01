@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import OuterRef, Subquery
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView, ListAPIView
 from rest_framework.mixins import UpdateModelMixin
@@ -61,7 +62,19 @@ class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
     queryset = User.objects.filter()
 
     def get_queryset(self):
-
+        membership = Membership.objects.filter(
+            workspace=self.kwargs['workspace_id'], user=OuterRef('id')
+        ).values('role')
         return self.queryset.filter(
             membership__workspace=self.kwargs['workspace_id'],
-        )
+        ).annotate(role=Subquery(membership))
+
+    def perform_update(self, serializer):
+        serializer.save()
+        new_role = serializer.validated_data.get('role')
+        if not new_role:
+            return
+
+        workspace_id = self.kwargs['workspace_id']
+        user_id = self.kwargs['pk']
+        Membership.objects.filter(workspace=workspace_id, user=user_id).update(role=new_role)
