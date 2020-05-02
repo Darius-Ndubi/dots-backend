@@ -14,6 +14,7 @@ export_variables() {
     touch .env.deploy
     echo export DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS} >> .env.deploy
     echo export DB_PORT=${DB_PORT} >> .env.deploy
+    echo export DEFAULT_API_URL=${DEFAULT_API_URL} >> .env.deploy
 }
 
 #@--- Build docker image  and push---@#
