@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.db.models import OuterRef, Subquery
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView, ListAPIView
 from rest_framework.mixins import UpdateModelMixin
@@ -23,6 +24,9 @@ class UserView(RetrieveUpdateAPIView):
         return self.request.user
 
 
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    tags=['register']
+))
 class UserRegistrationView(GenericAPIView):
     serializer_class = serializers.UserRegistrationSerializer
 
@@ -56,6 +60,12 @@ class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
                    role=Membership.OWNER, is_default=True).save()
 
 
+@method_decorator(name='list', decorator=swagger_auto_schema(
+    tags=['workspace users']
+))
+@method_decorator(name='update', decorator=swagger_auto_schema(
+    tags=['workspace users']
+))
 class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
     serializer_class = serializers.WorkspaceUserSerializer
     permission_classes = [IsAuthenticated, WorkspaceUserPermissions]
