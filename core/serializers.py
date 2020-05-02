@@ -2,14 +2,13 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from core.models import Workspace
-
+from core.models import Workspace, Membership
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField('get_full_name')
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -58,3 +57,27 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     def get_role(self, ws):
         return self._membership(ws).role
+
+
+class WorkspaceUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    last_login = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Membership
+        fields = ('id', 'username', 'email', 'last_login', 'full_name', 'is_active', 'role')
+        read_only_fields = ('id', 'username', 'email', 'last_login', 'full_name')
+
+    def get_full_name(self, m):
+        return f'{m.user.first_name} {m.user.last_name}'
+
+    def get_username(self, m):
+        return m.user.username
+
+    def get_email(self, m):
+        return m.user.email
+
+    def get_last_login(self, m):
+        return m.user.last_login
