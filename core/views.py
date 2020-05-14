@@ -8,10 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt import views as jwt_views
+
 
 from core import serializers
 from core.models import Workspace, Membership
 from core.permissions import WorkspacePermissions, WorkspaceUserPermissions
+
 
 User = get_user_model()
 
@@ -75,3 +78,8 @@ class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
         return self.queryset.filter(
             workspace=self.kwargs['workspace_id'],
         ).select_related('user')
+
+
+class TokenObtainPairView(jwt_views.TokenObtainPairView):
+    serializer_class = serializers.TokenObtainPairSerializer
+

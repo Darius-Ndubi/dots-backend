@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
+from rest_framework_simplejwt import serializers as jwt_serializers
 
 from core.models import Workspace, Membership
 
@@ -81,3 +82,9 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
 
     def get_last_login(self, m):
         return m.user.last_login
+
+
+class TokenObtainPairSerializer(jwt_serializers.TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        return data
