@@ -1,10 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from simple_history.models import HistoricalRecords
 
 
 class User(AbstractUser):
     title = models.CharField(_('title'), max_length=200, blank=True)
+    history = HistoricalRecords()
 
 
 class Workspace(models.Model):
@@ -13,6 +15,7 @@ class Workspace(models.Model):
     location = models.TextField(blank=True)
     url = models.URLField(max_length=500, blank=True)
     slug = models.SlugField(unique=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -33,6 +36,7 @@ class Membership(models.Model):
     user = models.ForeignKey(User, related_name="membership", on_delete=models.CASCADE)
     workspace = models.ForeignKey(Workspace, related_name="membership", on_delete=models.CASCADE)
     role = models.CharField(max_length=6, default=MEMBER, choices=ROLE_CHOICES)
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = ('user', 'workspace',)

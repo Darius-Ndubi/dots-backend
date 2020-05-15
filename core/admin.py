@@ -1,15 +1,16 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
 from .models import User, Membership, Workspace
 
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(SimpleHistoryAdmin):
     list_display = ('username', 'first_name', 'last_name', 'email', 'is_active', 'is_superuser', 'is_staff')
     search_fields = ['username', 'email', 'first_name', 'last_name']
     list_filter = ['is_active', 'is_superuser', 'is_staff', 'last_login']
 
 
-class MembershipAdmin(admin.ModelAdmin):
+class MembershipAdmin(SimpleHistoryAdmin):
     list_display = ('user', 'workspace', 'get_workspace_slug', 'is_active', 'role', 'is_default')
     search_fields = ['workspace__slug', 'user__username']
     list_filter = ['workspace__slug', 'role', 'is_active']
@@ -20,7 +21,7 @@ class MembershipAdmin(admin.ModelAdmin):
     get_workspace_slug.admin_order_field = 'workspace__slug'
 
 
-class WorkspaceAdmin(admin.ModelAdmin):
+class WorkspaceAdmin(SimpleHistoryAdmin):
     list_display = ('name', 'slug')
     search_fields = ['name', 'slug']
 
