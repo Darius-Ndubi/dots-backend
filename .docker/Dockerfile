@@ -57,7 +57,7 @@ RUN ls -ahl /root
 
 RUN rm -rf /root/.cache
 
-COPY ../ .
+COPY . .
 
 RUN chmod 777 .docker/start.sh  && \
     source /root/.local/share/virtualenvs/dots-api-*/bin/activate && \
