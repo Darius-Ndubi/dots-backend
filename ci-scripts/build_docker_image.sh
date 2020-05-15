@@ -12,7 +12,6 @@ docker_hub_auth() {
 #@--- Function to export env variables ---@#
 export_variables() {
     touch .env.local
-    source .env.local
     echo export DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS} >> .env.local
     echo export DB_PORT=${DB_PORT} >> .env.local
     echo export DEFAULT_API_URL=${DEFAULT_API_URL} >> .env.local
