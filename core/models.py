@@ -14,6 +14,9 @@ class Workspace(models.Model):
     url = models.URLField(max_length=500, blank=True)
     slug = models.SlugField(unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Membership(models.Model):
     ADMIN = 'ADMIN'
