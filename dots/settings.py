@@ -174,6 +174,11 @@ SWAGGER_SETTINGS = {
 
 BASE_URL = os.getenv('BASE_URL')
 SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 try:
     from .local_settings import *
