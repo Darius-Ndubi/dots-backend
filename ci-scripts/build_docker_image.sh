@@ -11,10 +11,10 @@ docker_hub_auth() {
 
 #@--- Function to export env variables ---@#
 export_variables() {
-    touch .env.deploy
-    echo export DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS} >> .env.deploy
-    echo export DB_PORT=${DB_PORT} >> .env.deploy
-    echo export DEFAULT_API_URL=${DEFAULT_API_URL} >> .env.deploy
+    touch .env.local
+    echo export DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS} >> .env.local
+    echo export DB_PORT=${DB_PORT} >> .env.local
+    echo export DEFAULT_API_URL=${DEFAULT_API_URL} >> .env.local
 }
 
 #@--- Build docker image  and push---@#
@@ -27,17 +27,17 @@ build_and_push_image() {
         #@--- Run export function ---@#
         export_variables
 
-        echo export SECRET_KEY=${SECRET_KEY_DEV} >> .env.deploy
-        echo export DB_NAME=${DB_NAME_DEV} >> .env.deploy
-        echo export DB_USER=${DB_USER_DEV} >> .env.deploy
-        echo export DB_PASSWORD=${DB_PASSWORD_DEV} >> .env.deploy
-        echo export DB_HOST=${DB_HOST_DEV} >> .env.deploy
-        echo export DOTS_MONGO_URI=${DOTS_MONGO_URI_DEV} >> .env.deploy
-        echo export DOTS_MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_DEV} >> .env.deploy
-        export APPLICATION_ENV=${APPLICATION_ENV_DEV} >> .env.deploy
-        
+        echo export SECRET_KEY=${SECRET_KEY_DEV} >> .env.local
+        echo export DB_NAME=${DB_NAME_DEV} >> .env.local
+        echo export DB_USER=${DB_USER_DEV} >> .env.local
+        echo export DB_PASSWORD=${DB_PASSWORD_DEV} >> .env.local
+        echo export DB_HOST=${DB_HOST_DEV} >> .env.local
+        echo export DOTS_MONGO_URI=${DOTS_MONGO_URI_DEV} >> .env.local
+        echo export DOTS_MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_DEV} >> .env.local
+        export APPLICATION_ENV=${APPLICATION_ENV_DEV} >> .env.local
 
-        docker build -t $REGISTRY_OWNER/activity:$APPLICATION_NAME-$APPLICATION_ENV-$TRAVIS_COMMIT -f docker-deploy/Dockerfile .  
+
+        docker build -t $REGISTRY_OWNER/activity:$APPLICATION_NAME-$APPLICATION_ENV-$TRAVIS_COMMIT -f .docker/Dockerfile .
         echo "-------- Building Image Done! ----------"
 
         echo "++++++++++++ Push Image built -------"
@@ -47,7 +47,7 @@ build_and_push_image() {
 
     #@--- Logout from docker ---@#
     echo "--------- Logout dockerhub --------"
-    docker logout                                                                                                                                          
+    docker logout
 }
 
 
