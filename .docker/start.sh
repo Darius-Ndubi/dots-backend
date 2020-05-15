@@ -16,6 +16,7 @@ echo "------------------- Make migrations Done !!! ------------------------"
 
 echo "+++++++++++++++++ Make staff users ++++++++++++++++++++++++"
 python manage.py make_staff_users
+python manage.py populate_history --auto
 echo "------------------- Make staff users Done !!! ------------------------"
 
 echo "+++++++++++++++++ Start up the server ++++++++++++++++++++++++"
