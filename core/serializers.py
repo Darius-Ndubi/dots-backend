@@ -92,5 +92,5 @@ class TokenObtainPairSerializer(jwt_serializers.TokenObtainPairSerializer):
         user_logged_in.send(
             sender=self.__class__,
             user=user,
-            last_login=user.last_login)
+            is_new=not user.last_login)
         return data
