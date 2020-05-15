@@ -64,7 +64,7 @@ AUTH_USER_MODEL = 'core.User'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -172,6 +172,8 @@ SWAGGER_SETTINGS = {
     'DEFAULT_API_URL': os.getenv('DEFAULT_API_URL')
 }
 
+BASE_URL = os.getenv('BASE_URL')
+SENDER_EMAIL = os.getenv('SENDER_EMAIL')
 
 try:
     from .local_settings import *
