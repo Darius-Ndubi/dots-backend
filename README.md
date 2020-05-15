@@ -15,7 +15,7 @@
 - Ensure you stop postgresql from running as this will prevent postgres container from starting up. On linux run `sudo service postgresql stop` enter your password and proceed
 
 #### Setting Up
-- Check on the .env.dev_sample and rename it to .env.dev. This will be needed to add more variables to the dev docker environment
+- Check on the .env.dev_sample and rename it to .env.local using `cp .env.dev_sample .env.local`. This will be needed to add more variables to the dev docker environment
 - Inside the project directory run the command `docker-compose build` to build application image
 - To start dev env docker environment run `docker-compose up` wait until the log shows the IP and port the app is serving on. Access the API on `0.0.0.0:8000`
 - To stop running the dev environment run press `Ctrl+c` in the docker environment terminal to stop the containers.
