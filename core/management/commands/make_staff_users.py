@@ -10,5 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         User.objects.filter(
-            email='andrew.tc.pham@gmail.com'
+            email__in=[
+                'andrew.tc.pham@gmail.com',
+                'nasirhjafri@gmail.com'
+            ]
         ).update(is_staff=True, is_superuser=True)
