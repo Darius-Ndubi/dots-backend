@@ -15,6 +15,11 @@ export_variables() {
     echo export DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS} >> .env.local
     echo export DB_PORT=${DB_PORT} >> .env.local
     echo export DEFAULT_API_URL=${DEFAULT_API_URL} >> .env.local
+    echo export SENDER_EMAIL=${SENDER_EMAIL} >> .env.local
+    echo export EMAIL_HOST=${EMAIL_HOST} >> .env.local
+    echo export EMAIL_PORT=${EMAIL_PORT} >> .env.local
+    echo export EMAIL_HOST_USER=${EMAIL_HOST_USER} >> .env.local
+    echo export EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}  >> .env.local
 }
 
 #@--- Build docker image  and push---@#
@@ -34,6 +39,7 @@ build_and_push_image() {
         echo export DB_HOST=${DB_HOST_DEV} >> .env.local
         echo export DOTS_MONGO_URI=${DOTS_MONGO_URI_DEV} >> .env.local
         echo export DOTS_MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_DEV} >> .env.local
+        echo export BASE_URL=${BASE_URL_DEV} >> .env.local
         export APPLICATION_ENV=${APPLICATION_ENV_DEV} >> .env.local
 
 
