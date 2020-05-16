@@ -174,6 +174,7 @@ SWAGGER_SETTINGS = {
     'DEFAULT_API_URL': os.getenv('DEFAULT_API_URL')
 }
 
+EMAIL_USE_TLS = True
 BASE_URL = os.getenv('BASE_URL')
 SENDER_EMAIL = os.getenv('SENDER_EMAIL')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
