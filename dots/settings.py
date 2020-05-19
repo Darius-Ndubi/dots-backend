@@ -174,6 +174,14 @@ SWAGGER_SETTINGS = {
     'DEFAULT_API_URL': os.getenv('DEFAULT_API_URL')
 }
 
+# THIRD PARTY URIs
+ONA_URI = os.getenv('ONA_URI', '')
+ONA_API_KEY = os.getenv('ONA_API_KEY', '')
+KOBO_URI = os.getenv('KOBO_URI', '')
+KOBO_API_KEY = os.getenv('KOBO_API_KEY', '')
+SURVEY_CTO_URI = os.getenv('SURVEY_CTO_URI', '')
+SURVEY_CTO_API_KEY = os.getenv('SURVEY_CTO_API_KEY', '')
+
 EMAIL_USE_TLS = True
 BASE_URL = os.getenv('BASE_URL')
 SENDER_EMAIL = os.getenv('SENDER_EMAIL')
@@ -185,7 +193,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 try:
     from .local_settings import *
-except:
+except ModuleNotFoundError:
     pass
 
 SIMPLE_JWT = {
@@ -212,4 +220,3 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 CORS_ORIGIN_ALLOW_ALL = True
-

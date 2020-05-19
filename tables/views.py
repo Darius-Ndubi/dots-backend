@@ -1,14 +1,17 @@
 from django.db import IntegrityError
-from django.conf import settings as app_settings
 
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 
 from .models import Table
 from .serializers import (TableSerializer, TableDetailSerializer)
-from .utils import (process_data, connect_to_mongo, )
+from .utils import (
+    process_data, connect_to_mongo, generate_geojson_data,
+    get_data_source_forms,
+)
 
 
 class TableViewSet(viewsets.ModelViewSet):
@@ -30,7 +33,6 @@ class TableViewSet(viewsets.ModelViewSet):
         except (ValueError, KeyError) as e:
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-        request_data['owner'] = request.user.id
         serializer = self.get_serializer(
             data=request_data, context={'request': self.request}
         )
@@ -55,10 +57,56 @@ class TableViewSet(viewsets.ModelViewSet):
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
-        # set owner
-        serializer.save()
+        serializer.save(owner=self.request.user)
 
     def get_serializer_class(self):
         if hasattr(self, 'action') and self.action == 'retrieve':
             return TableDetailSerializer
         return TableSerializer
+
+
+class TableGeoJsonView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        table_uuid = kwargs.get('table_uuid', None)
+        if table_uuid is None:
+            return Response(
+                dict(error='Table UUID is required'),
+                status=status.HTTP_400_BAD_REQUES
+            )
+        try:
+            table = Table.objects.get(table_uuid=table_uuid)
+            geo_json_data = generate_geojson_data(table)
+
+            return Response(
+                dict(data=geo_json_data),
+                status=status.HTTP_200_OK
+            )
+        except Table.DoesNotExist:
+            return Response(
+                dict(error='Table with the does not exist'),
+                status=status.HTTP_400_BAD_REQUES
+            )
+
+
+class ThirdPartyImportView(APIView):
+    """
+    Get 3rd party forms based on source
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        source = request.GET.get('source', None)
+        if source is None:
+            return Response(
+                dict(error='Please pass data source'),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        source_forms = get_data_source_forms(source)
+        return Response(source_forms, status=status.HTTP_200_OK)
+
+
+
+
