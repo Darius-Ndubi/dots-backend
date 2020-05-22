@@ -40,6 +40,8 @@ build_and_push_image() {
         echo export DOTS_MONGO_URI=${DOTS_MONGO_URI_DEV} >> .env.local
         echo export DOTS_MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_DEV} >> .env.local
         echo export BASE_URL=${BASE_URL_DEV} >> .env.local
+        echo export KOBO_URI=${KOBO_URI_DEV} >> .env.local
+        echo export KOBO_API_KEY=${KOBO_API_KEY_DEV} >> .env.local
         export APPLICATION_ENV=${APPLICATION_ENV_DEV} >> .env.local
 
 
