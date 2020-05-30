@@ -37,12 +37,7 @@ class UserRegistrationView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
-        data = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response({}, status=status.HTTP_201_CREATED)
 
 
 class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
