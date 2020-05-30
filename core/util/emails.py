@@ -16,3 +16,19 @@ def send_welcome_email(user):
         [user.email],
         html_message=msg_html,
     )
+
+
+def send_confirmation_email(user, key):
+    msg_html = render_to_string(
+        'emails/welcome.html',
+        {'user': user, 'BASE_URL': settings.BASE_URL,
+         'confirmation_key': key}
+    )
+
+    send_mail(
+        'Verify Your Email',
+        msg_html,
+        settings.SENDER_EMAIL,
+        [user.email],
+        html_message=msg_html,
+    )
