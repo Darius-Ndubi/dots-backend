@@ -7,14 +7,14 @@ from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt import views as jwt_views
 
 
 from core import serializers
 from core.models import Workspace, Membership
 from core.permissions import WorkspacePermissions, WorkspaceUserPermissions
-
+from core.util.emails import send_activation_email
+from core.util.key_generation import create_activation_key
 
 User = get_user_model()
 
@@ -37,6 +37,8 @@ class UserRegistrationView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        activation = create_activation_key(user)
+        send_activation_email(user, activation)
         return Response({}, status=status.HTTP_201_CREATED)
 
 

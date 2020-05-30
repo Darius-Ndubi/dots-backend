@@ -18,11 +18,11 @@ def send_welcome_email(user):
     )
 
 
-def send_confirmation_email(user, key):
+def send_activation_email(user, activation):
     msg_html = render_to_string(
-        'emails/welcome.html',
+        'emails/activation.html',
         {'user': user, 'BASE_URL': settings.BASE_URL,
-         'confirmation_key': key}
+         'activation_key': activation.key}
     )
 
     send_mail(

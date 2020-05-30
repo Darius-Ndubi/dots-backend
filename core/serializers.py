@@ -40,7 +40,7 @@ class UserRegistrationSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         validated_data.pop('confirm_password')
-        validated_data['is_verified'] = False
+        validated_data['is_active'] = False
         return User.objects.create_user(**validated_data)
 
 

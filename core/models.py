@@ -9,6 +9,11 @@ class User(AbstractUser):
     history = HistoricalRecords()
 
 
+class UserActivation(models.Model):
+    user = models.ForeignKey(User, related_name='activation', on_delete=models.CASCADE)
+    key = models.CharField(max_length=100)
+
+
 class Workspace(models.Model):
     name = models.CharField(_('name'), max_length=200)
     description = models.TextField(blank=True)
@@ -33,8 +38,8 @@ class Membership(models.Model):
     )
     is_active = models.BooleanField(default=True)
     is_default = models.BooleanField(default=False)
-    user = models.ForeignKey(User, related_name="membership", on_delete=models.CASCADE)
-    workspace = models.ForeignKey(Workspace, related_name="membership", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='membership', on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, related_name='membership', on_delete=models.CASCADE)
     role = models.CharField(max_length=6, default=MEMBER, choices=ROLE_CHOICES)
     history = HistoricalRecords()
 
