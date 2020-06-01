@@ -6,15 +6,16 @@ from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListC
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt import views as jwt_views
 
 
 from core import serializers
-from core.models import Workspace, Membership
+from core.models import Workspace, Membership, UserActivation
 from core.permissions import WorkspacePermissions, WorkspaceUserPermissions
-
+from core.util.emails import send_activation_email
+from core.util.key_generation import create_activation_key
 
 User = get_user_model()
 
@@ -37,12 +38,9 @@ class UserRegistrationView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh = RefreshToken.for_user(user)
-        data = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-        return Response(data, status=status.HTTP_201_CREATED)
+        activation = create_activation_key(user)
+        send_activation_email(user, activation)
+        return Response({}, status=status.HTTP_201_CREATED)
 
 
 class WorkspaceView(ListCreateAPIView, UpdateModelMixin, GenericViewSet):
@@ -83,3 +81,15 @@ class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
 class TokenObtainPairView(jwt_views.TokenObtainPairView):
     serializer_class = serializers.TokenObtainPairSerializer
 
+
+class UserActivationView(APIView):
+    def get(self, request, activation_key):
+        activation = UserActivation.objects.filter(key=activation_key).first()
+        if not activation:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        user = activation.user
+        user.is_active = True
+        user.save()
+        activation.delete()
+        return Response(status=status.HTTP_201_CREATED)

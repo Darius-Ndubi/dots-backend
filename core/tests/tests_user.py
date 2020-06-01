@@ -82,10 +82,14 @@ class UserRegistrationTests(APITestCase):
         json_response = response.json()
 
         assert response.status_code == 201
-        assert 'refresh' in json_response
-        assert 'access' in json_response
 
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer {0}'.format(json_response['access']))
+        # Activate the user and get access token
+        user = User.objects.filter(email=self.user['email']).first()
+        user.is_active = True
+        user.save()
+        token = AccessToken.for_user(user)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer {0}'.format(token))
         response = self.client.get('/api/user', format='json')
         assert_user(user=self.user, response=response)
 

@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, user_logged_in
 
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from rest_framework_simplejwt import serializers as jwt_serializers
 
 from core.models import Workspace, Membership
@@ -40,6 +40,7 @@ class UserRegistrationSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         validated_data.pop('confirm_password')
+        validated_data['is_active'] = False
         return User.objects.create_user(**validated_data)
 
 
@@ -87,10 +88,17 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
 
 class TokenObtainPairSerializer(jwt_serializers.TokenObtainPairSerializer):
     def validate(self, attrs):
-        data = super().validate(attrs)
-        user = self.user
+        try:
+            data = super().validate(attrs)
+        except exceptions.AuthenticationFailed as e:
+            if self.user and not self.user.is_active:
+                raise serializers.ValidationError({
+                    'not_verified': 'Email is not verified'
+                })
+            raise e
+
         user_logged_in.send(
             sender=self.__class__,
-            user=user,
-            is_new=not user.last_login)
+            user=self.user,
+            is_new=not self.user.last_login)
         return data
