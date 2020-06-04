@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'simple_history',
     'core',
-    'tables'
+    'tables',
+    'maps'
 ]
 
 MIDDLEWARE = [
