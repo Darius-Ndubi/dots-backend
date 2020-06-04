@@ -29,8 +29,8 @@ class Layer(models.Model):
     geo_point_field = models.CharField(max_length=100, null=True, blank=True)
     latitude_field = models.CharField(max_length=100, null=True, blank=True)
     longitude_field = models.CharField(max_length=100, null=True, blank=True)
-    data_field = models.CharField('Data Field from the Table', max_length=100, null=True, blank=True)
-    boundary_field = models.CharField('Admin Boundary Field', max_length=100, null=True, blank=True)
+    value_field = models.CharField('Value Field from the Table', max_length=100, null=True, blank=True)
+    admin_boundary_field = models.CharField(max_length=100, null=True, blank=True)
     layer_colors = ArrayField(models.CharField(max_length=100), null=True, blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
     layer_type = models.CharField(choices=LAYER_TYPES, max_length=50)
@@ -38,16 +38,16 @@ class Layer(models.Model):
     created_by = models.ForeignKey(
         get_user_model(), related_name='created_last_modified_by_user', null=True, blank=True, on_delete=models.SET_NULL
     )
-    last_modified_by = models.ForeignKey(
+    modified_by = models.ForeignKey(
         get_user_model(), related_name='last_modified_by_user', null=True, blank=True, on_delete=models.SET_NULL
     )
     create_date = models.DateTimeField()
-    last_modified = models.DateTimeField()
+    modified_date = models.DateTimeField()
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.create_date = timezone.now()
-        self.last_modified = timezone.now()
+        self.modified_date = timezone.now()
 
         return super(Layer, self).save(*args, **kwargs)
 
