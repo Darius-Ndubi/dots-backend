@@ -7,13 +7,18 @@ export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
 echo "+++++++++++++++++ Export environment variables ++++++++++++++++++++++++"
-source .env.dev
+source .env.local
 echo "+++++++++++++++++ Export Done ++++++++++++++++++++++++"
 
 echo "+++++++++++++++++ Make migrations ++++++++++++++++++++++++"
-python3 manage.py migrate
+python manage.py migrate
 echo "------------------- Make migrations Done !!! ------------------------"
+
+echo "+++++++++++++++++ Make staff users ++++++++++++++++++++++++"
+python manage.py make_staff_users
+python manage.py populate_history --auto
+echo "------------------- Make staff users Done !!! ------------------------"
 
 echo "+++++++++++++++++ Start up the server ++++++++++++++++++++++++"
 gunicorn --workers 2  dots.wsgi -b 0.0.0.0:8000 --access-logfile '-'
-echo "------------------- Development server up and running ------------------------"
+echo "------------------- Server up and running ------------------------"

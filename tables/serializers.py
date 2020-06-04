@@ -1,30 +1,19 @@
 from rest_framework import serializers
 
-from django.conf import settings as app_settings
-from pymongo import MongoClient
 from .models import Table
 from .utils import connect_to_mongo
 
 
-class TableSerializer(serializers.HyperlinkedModelSerializer):
+class TableSerializer(serializers.ModelSerializer):
     table_uuid = serializers.ReadOnlyField()
     id = serializers.ReadOnlyField()
-    owner = serializers.ReadOnlyField()
-    url = serializers.HyperlinkedIdentityField(
-        view_name='table-detail',
-        lookup_field='table_uuid'
-    )
 
     class Meta:
         model = Table
         fields = '__all__'
 
 
-class TableDetailSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='table-detail',
-        lookup_field='table_uuid'
-    )
+class TableDetailSerializer(serializers.ModelSerializer):
     data = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -39,3 +28,6 @@ class TableDetailSerializer(serializers.HyperlinkedModelSerializer):
         if data is not None:
             del data['_id']
         return data
+
+
+

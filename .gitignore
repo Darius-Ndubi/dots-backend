@@ -4,7 +4,7 @@ venv/
 *.sqlite3
 .coverage
 reports/*
-.env
+.env.local
 dots_db/
 dots/local_settings.py
 dots_postgres_db/

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'corsheaders',
+    'simple_history',
     'core',
     'tables'
 ]
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'dots.urls'
@@ -64,7 +66,7 @@ AUTH_USER_MODEL = 'core.User'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,7 +140,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-STATIC_ROOT =  os.path.join(BASE_DIR, "assets")
+STATIC_ROOT = os.path.join(BASE_DIR, "assets")
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
@@ -167,13 +169,33 @@ SWAGGER_SETTINGS = {
     'PERSIST_AUTH': True,
     'USE_SESSION_AUTH': False,
     'REFETCH_SCHEMA_WITH_AUTH': True,
-    'REFETCH_SCHEMA_ON_LOGOUT': True
+    'REFETCH_SCHEMA_ON_LOGOUT': True,
+    'DOC_EXPANSION': 'none',
+    'DEFAULT_API_URL': os.getenv('DEFAULT_API_URL')
 }
+
+# THIRD PARTY URIs
+ONA_URI = os.getenv('ONA_URI', '')
+ONA_API_KEY = os.getenv('ONA_API_KEY', '')
+KOBO_URI = os.getenv('KOBO_URI', '')
+KOBO_API_KEY = os.getenv('KOBO_API_KEY', '')
+SURVEY_CTO_URI = os.getenv('SURVEY_CTO_URI', '')
+SURVEY_CTO_API_KEY = os.getenv('SURVEY_CTO_API_KEY', '')
+
+EMAIL_USE_TLS = True
+BASE_URL = os.getenv('BASE_URL')
+SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+AUTHENTICATION_BACKENDS = ('dots.backends.DotsAuthBackend',)
 
 
 try:
     from .local_settings import *
-except:
+except ModuleNotFoundError:
     pass
 
 SIMPLE_JWT = {
@@ -200,4 +222,3 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 CORS_ORIGIN_ALLOW_ALL = True
-
