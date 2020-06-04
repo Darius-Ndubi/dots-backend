@@ -8,6 +8,7 @@ class LayerViewSet(viewsets.ModelViewSet):
     model = Layer
     queryset = Layer.objects.all()
     serializer_class = LayerSerializer
+    lookup_field = 'layer_uuid'
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
