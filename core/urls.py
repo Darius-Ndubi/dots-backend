@@ -14,6 +14,9 @@ urlpatterns = [
     path('user/register', views.UserRegistrationView.as_view()),
     path('user/invite/<slug:invitation_key>', views.UserInvitationView.as_view()),
     path('activate/<slug:activation_key>', views.UserActivationView.as_view()),
+    path('workspace/<int:workspace_id>/invite', views.WorkspaceInvitationView.as_view({
+        'get': 'list', 'post': 'create'
+    })),
     path('workspace/<int:workspace_id>/users', views.WorkspaceUsersView.as_view({'get': 'list'})),
     path('workspace/<int:workspace_id>/users/<int:pk>', views.WorkspaceUsersView.as_view({'patch': 'update'})),
     path('token', views.TokenObtainPairView.as_view(), name='token_obtain_pair'),

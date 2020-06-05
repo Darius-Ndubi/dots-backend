@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView, ListAPIView
-from rest_framework.mixins import UpdateModelMixin
+from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView, ListAPIView, CreateAPIView
+from rest_framework.mixins import UpdateModelMixin, CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,7 +13,8 @@ from rest_framework_simplejwt import views as jwt_views
 
 from core import serializers
 from core.models import Workspace, Membership, UserActivation, WorkspaceInvitation
-from core.permissions import WorkspacePermissions, WorkspaceUserPermissions, IsGetOrIsAuthenticated
+from core.permissions import WorkspacePermissions, WorkspaceUserPermissions, IsGetOrIsAuthenticated, \
+    IsWorkspaceAdminOrOwner
 from core.util.emails import send_activation_email
 from core.util.key_generation import create_activation_key
 
@@ -147,3 +148,18 @@ class UserInvitationView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class WorkspaceInvitationView(ListAPIView, CreateModelMixin, GenericViewSet):
+    serializer_class = serializers.WorkspaceInvitationSerializer
+    permission_classes = [IsAuthenticated, IsWorkspaceAdminOrOwner]
+    queryset = WorkspaceInvitation.objects.filter()
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            workspace=self.kwargs['workspace_id'],
+        )
+
+    def create(self, request, *args, **kwargs):
+        request.data['workspace'] = self.kwargs['workspace_id']
+        response = super().create(request, args, kwargs)
+        # Email to user
+        return response

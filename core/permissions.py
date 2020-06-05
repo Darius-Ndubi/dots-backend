@@ -70,3 +70,21 @@ class IsGetOrIsAuthenticated(permissions.BasePermission):
         if request.method == 'GET':
             return True
         return request.user and request.user.is_authenticated
+
+
+class IsWorkspaceAdminOrOwner(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        workspace_id = view.kwargs.get('workspace_id')
+        # For the sake of swagger
+        if not workspace_id:
+            return True
+
+        if not (request.user and request.user.is_authenticated):
+            return False
+
+        return Membership.objects.filter(
+            user=request.user,
+            workspace_id=workspace_id,
+            role__in=[Membership.OWNER, Membership.ADMIN]
+        )

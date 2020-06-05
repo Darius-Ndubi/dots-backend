@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model, user_logged_in
 
 from rest_framework import serializers, exceptions
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_simplejwt import serializers as jwt_serializers
 
 from core.models import Workspace, Membership, WorkspaceInvitation
+from core.util.key_generation import create_invitation_key
 
 User = get_user_model()
 
@@ -115,3 +117,26 @@ class TokenObtainPairSerializer(jwt_serializers.TokenObtainPairSerializer):
             user=self.user,
             is_new=not self.user.last_login)
         return data
+
+
+class WorkspaceInvitationSerializer(serializers.ModelSerializer):
+    key = serializers.CharField(required=False)
+    workspace = serializers.PrimaryKeyRelatedField(required=False)
+
+    class Meta:
+        model = WorkspaceInvitation
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=WorkspaceInvitation.objects.all(),
+                fields=['email', 'workspace'],
+                message='This email is already invited.'
+            )
+        ]
+
+    def validate(self, data):
+        data['key'] = create_invitation_key(
+            data['workspace'],
+            data['email']
+        )
+        return super().validate(data)
