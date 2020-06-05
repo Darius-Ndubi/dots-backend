@@ -45,3 +45,14 @@ class Membership(models.Model):
 
     class Meta:
         unique_together = ('user', 'workspace',)
+
+
+class WorkspaceInvitation(models.Model):
+    workspace = models.ForeignKey(Workspace, related_name='invites', on_delete=models.CASCADE)
+    email = models.EmailField(_('email address'))
+    first_name = models.CharField(_('first name'), max_length=30, blank=True)
+    last_name = models.CharField(_('last name'), max_length=150, blank=True)
+    key = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ['workspace', 'email']

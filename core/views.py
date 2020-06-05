@@ -12,7 +12,7 @@ from rest_framework_simplejwt import views as jwt_views
 
 
 from core import serializers
-from core.models import Workspace, Membership, UserActivation
+from core.models import Workspace, Membership, UserActivation, WorkspaceInvitation
 from core.permissions import WorkspacePermissions, WorkspaceUserPermissions
 from core.util.emails import send_activation_email
 from core.util.key_generation import create_activation_key
@@ -93,3 +93,45 @@ class UserActivationView(APIView):
         user.save()
         activation.delete()
         return Response(status=status.HTTP_201_CREATED)
+
+
+class AcceptInvitationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, invitation_key):
+        invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
+        if not invitation:
+            return Response({
+                'not_found': 'Invalid invite.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user.email.lower() != invitation.email.lower():
+            return Response({
+                'wrong_user': 'Please login/register with the email on which invite was sent.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        #Add User to workspace
+        return Response(status=status.HTTP_200_OK)
+
+
+class InvitationStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, invitation_key):
+        invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
+        if not invitation:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        registered = User.objects.filter(email__iexact=invitation.email).exists()
+        if registered:
+            return Response({
+                'user_exists': 'User already exists, please login to accept invite.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # If invite is for new user return invite info to autofill the signup form.
+        return Response({
+            'no_user_found': 'No user found.',
+            'email': invitation.email,
+            'first_name': invitation.first_name,
+            'last_name': invitation.last_name,
+        }, status=status.HTTP_400_BAD_REQUEST)
