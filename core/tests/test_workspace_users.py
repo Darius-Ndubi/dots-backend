@@ -20,7 +20,7 @@ class WorkspaceTests(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(**self._user)
-        self.workspace = Workspace.objects.create(name='test', slug='test')
+        self.workspace = Workspace.objects.create(display_name='test', name='test')
 
         token = AccessToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer {0}'.format(token))
