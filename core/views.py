@@ -13,7 +13,7 @@ from rest_framework_simplejwt import views as jwt_views
 
 from core import serializers
 from core.models import Workspace, Membership, UserActivation, WorkspaceInvitation
-from core.permissions import WorkspacePermissions, WorkspaceUserPermissions
+from core.permissions import WorkspacePermissions, WorkspaceUserPermissions, IsGetOrIsAuthenticated
 from core.util.emails import send_activation_email
 from core.util.key_generation import create_activation_key
 
@@ -95,10 +95,35 @@ class UserActivationView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class AcceptInvitationView(APIView):
-    permission_classes = [IsAuthenticated]
+@method_decorator(name='get', decorator=swagger_auto_schema(
+    tags=['user invitation']
+))
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    tags=['user invitation']
+))
+class UserInvitationView(APIView):
+    permission_classes = [IsGetOrIsAuthenticated]
 
     def get(self, request, invitation_key):
+        invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
+        if not invitation:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        registered = User.objects.filter(email__iexact=invitation.email).exists()
+        if registered:
+            return Response({
+                'require_login': 'Please login to accept invite.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # If invite is for new user return invite info to autofill the signup form.
+        return Response({
+            'no_user_found': 'No user found.',
+            'email': invitation.email,
+            'first_name': invitation.first_name,
+            'last_name': invitation.last_name,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, invitation_key):
         invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
         if not invitation:
             return Response({
@@ -110,28 +135,15 @@ class AcceptInvitationView(APIView):
                 'wrong_user': 'Please login/register with the email on which invite was sent.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        #Add User to workspace
+        Membership.objects.filter(user=request.user).update(is_default=False)
+        Membership.objects.create(
+            is_default=True,
+            workspace=invitation.workspace,
+            user=request.user
+        )
         return Response(status=status.HTTP_200_OK)
 
 
 class InvitationStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, invitation_key):
-        invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
-        if not invitation:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        registered = User.objects.filter(email__iexact=invitation.email).exists()
-        if registered:
-            return Response({
-                'user_exists': 'User already exists, please login to accept invite.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # If invite is for new user return invite info to autofill the signup form.
-        return Response({
-            'no_user_found': 'No user found.',
-            'email': invitation.email,
-            'first_name': invitation.first_name,
-            'last_name': invitation.last_name,
-        }, status=status.HTTP_400_BAD_REQUEST)
