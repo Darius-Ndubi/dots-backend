@@ -78,6 +78,18 @@ class WorkspaceUsersView(ListAPIView, UpdateModelMixin, GenericViewSet):
         ).select_related('user')
 
 
+class WorkspaceSetDefaultView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, workspace_id):
+        Membership.objects.filter(user=request.user).update(is_default=False)
+        Membership.objects.filter(
+            user=request.user,
+            workspace_id=workspace_id
+        ).update(is_default=True)
+        return Response(status=status.HTTP_200_OK)
+
+
 class TokenObtainPairView(jwt_views.TokenObtainPairView):
     serializer_class = serializers.TokenObtainPairSerializer
 
