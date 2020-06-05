@@ -3,7 +3,7 @@ from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView, ListAPIView, CreateAPIView
-from rest_framework.mixins import UpdateModelMixin, CreateModelMixin
+from rest_framework.mixins import UpdateModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -148,7 +148,7 @@ class UserInvitationView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class WorkspaceInvitationView(ListAPIView, CreateModelMixin, GenericViewSet):
+class WorkspaceInvitationView(ListAPIView, CreateModelMixin, DestroyModelMixin, GenericViewSet):
     serializer_class = serializers.WorkspaceInvitationReadSerializer
     permission_classes = [IsAuthenticated, IsWorkspaceAdminOrOwner]
     queryset = WorkspaceInvitation.objects.filter()
