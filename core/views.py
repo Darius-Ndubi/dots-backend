@@ -107,7 +107,9 @@ class UserInvitationView(APIView):
     def get(self, request, invitation_key):
         invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
         if not invitation:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'not_found': 'Invalid invite.'
+            }, status=status.HTTP_404_NOT_FOUND)
 
         registered = User.objects.filter(email__iexact=invitation.email).exists()
         if registered:
@@ -141,9 +143,7 @@ class UserInvitationView(APIView):
             workspace=invitation.workspace,
             user=request.user
         )
+        invitation.delete()
         return Response(status=status.HTTP_200_OK)
 
-
-class InvitationStatusView(APIView):
-    permission_classes = [IsAuthenticated]
 

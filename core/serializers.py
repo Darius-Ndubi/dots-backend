@@ -3,8 +3,7 @@ from django.contrib.auth import get_user_model, user_logged_in
 from rest_framework import serializers, exceptions
 from rest_framework_simplejwt import serializers as jwt_serializers
 
-from core.models import Workspace, Membership
-
+from core.models import Workspace, Membership, WorkspaceInvitation
 
 User = get_user_model()
 
@@ -28,6 +27,7 @@ class UserRegistrationSerializer(serializers.Serializer):
     last_name = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
     confirm_password = serializers.CharField(required=True)
+    invitation_key = serializers.CharField(required=False)
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
@@ -41,7 +41,20 @@ class UserRegistrationSerializer(serializers.Serializer):
     def create(self, validated_data):
         validated_data.pop('confirm_password')
         validated_data['is_active'] = False
-        return User.objects.create_user(**validated_data)
+        invitation_key = validated_data.pop('invitation_key', None)
+
+        user = User.objects.create_user(**validated_data)
+
+        invitation = WorkspaceInvitation.objects.filter(key=invitation_key).first()
+        if invitation:
+            Membership.objects.filter(user=user).update(is_default=False)
+            Membership.objects.create(
+                is_default=True,
+                workspace=invitation.workspace,
+                user=user
+            )
+            invitation.delete()
+        return user
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
