@@ -15,7 +15,7 @@ from core import serializers
 from core.models import Workspace, Membership, UserActivation, WorkspaceInvitation
 from core.permissions import WorkspacePermissions, WorkspaceUserPermissions, IsGetOrIsAuthenticated, \
     IsWorkspaceAdminOrOwner
-from core.util.emails import send_activation_email
+from core.util.emails import send_activation_email, send_invitation_email
 from core.util.key_generation import create_activation_key
 
 User = get_user_model()
@@ -162,6 +162,6 @@ class WorkspaceInvitationView(ListAPIView, CreateModelMixin, GenericViewSet):
         request.data['workspace'] = self.kwargs['workspace_id']
         serializer = serializers.WorkspaceInvitationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response({}, status=status.HTTP_201_CREATED, headers=headers)
+        invitation = serializer.save()
+        send_invitation_email(invitation)
+        return Response({}, status=status.HTTP_201_CREATED)
