@@ -119,9 +119,14 @@ class TokenObtainPairSerializer(jwt_serializers.TokenObtainPairSerializer):
         return data
 
 
+class WorkspaceInvitationReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkspaceInvitation
+        exclude = ('key', 'workspace')
+
+
 class WorkspaceInvitationSerializer(serializers.ModelSerializer):
     key = serializers.CharField(required=False)
-    workspace = serializers.PrimaryKeyRelatedField(required=False)
 
     class Meta:
         model = WorkspaceInvitation

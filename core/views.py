@@ -149,7 +149,7 @@ class UserInvitationView(APIView):
 
 
 class WorkspaceInvitationView(ListAPIView, CreateModelMixin, GenericViewSet):
-    serializer_class = serializers.WorkspaceInvitationSerializer
+    serializer_class = serializers.WorkspaceInvitationReadSerializer
     permission_classes = [IsAuthenticated, IsWorkspaceAdminOrOwner]
     queryset = WorkspaceInvitation.objects.filter()
 
@@ -160,6 +160,8 @@ class WorkspaceInvitationView(ListAPIView, CreateModelMixin, GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         request.data['workspace'] = self.kwargs['workspace_id']
-        response = super().create(request, args, kwargs)
-        # Email to user
-        return response
+        serializer = serializers.WorkspaceInvitationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response({}, status=status.HTTP_201_CREATED, headers=headers)
