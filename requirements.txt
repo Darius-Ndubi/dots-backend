@@ -8,3 +8,4 @@ djangorestframework-simplejwt==4.4.0
 pymongo
 psycopg2-binary
 gunicorn==20.0.4
+django-filter
