@@ -1,6 +1,6 @@
 import uuid
 
-from  django.utils import timezone
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
@@ -30,13 +30,14 @@ class Table(models.Model):
     workspace = models.ForeignKey(
         Workspace, related_name='table_workspace', null=True, blank=True, on_delete=models.CASCADE
     )
-    create_date = models.DateTimeField(auto_now_add=True)
-    update_date = models.DateTimeField(auto_now=True)
+    create_date = models.DateTimeField(null=True)
+    update_date = models.DateTimeField(null=True)
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.create_date = timezone.now()
         self.update_date = timezone.now()
+        return super(Table, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name}'
