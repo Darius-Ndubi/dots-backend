@@ -12,14 +12,16 @@ class User(AbstractUser):
 class UserActivation(models.Model):
     user = models.ForeignKey(User, related_name='activation', on_delete=models.CASCADE)
     key = models.CharField(max_length=100)
+    history = HistoricalRecords()
 
 
 class Workspace(models.Model):
-    name = models.CharField(_('name'), max_length=200)
+    display_name = models.CharField(_('display name'), max_length=200)
     description = models.TextField(blank=True)
     location = models.TextField(blank=True)
-    url = models.URLField(max_length=500, blank=True)
-    slug = models.SlugField(unique=True)
+    website = models.URLField(max_length=500, blank=True)
+    name = models.SlugField(unique=True)
+    email = models.EmailField(_('email address'), blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -53,6 +55,7 @@ class WorkspaceInvitation(models.Model):
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=150, blank=True)
     key = models.CharField(max_length=100)
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = ['workspace', 'email']

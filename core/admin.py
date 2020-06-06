@@ -11,19 +11,19 @@ class UserAdmin(SimpleHistoryAdmin):
 
 
 class MembershipAdmin(SimpleHistoryAdmin):
-    list_display = ('user', 'workspace', 'get_workspace_slug', 'is_active', 'role', 'is_default')
-    search_fields = ['workspace__slug', 'user__username']
-    list_filter = ['workspace__slug', 'role', 'is_active']
+    list_display = ('user', 'workspace', 'get_workspace_name', 'is_active', 'role', 'is_default')
+    search_fields = ['workspace__name', 'user__username']
+    list_filter = ['workspace__name', 'role', 'is_active']
 
-    def get_workspace_slug(self, obj):
-        return obj.workspace.slug
-    get_workspace_slug.short_description = 'Workspace Slug'
-    get_workspace_slug.admin_order_field = 'workspace__slug'
+    def get_workspace_name(self, obj):
+        return obj.workspace.name
+    get_workspace_name.short_description = 'Workspace Name'
+    get_workspace_name.admin_order_field = 'workspace__name'
 
 
 class WorkspaceAdmin(SimpleHistoryAdmin):
-    list_display = ('name', 'slug')
-    search_fields = ['name', 'slug']
+    list_display = ('display_name', 'name')
+    search_fields = ['display_name', 'name']
 
 
 admin.site.register(User, UserAdmin)
