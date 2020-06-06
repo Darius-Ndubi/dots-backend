@@ -1,14 +1,14 @@
 from rest_framework import (viewsets, permissions, )
 
-from .models import (Layer, )
-from .serializers import (LayerSerializer, )
+from .models import (MapLayer, )
+from .serializers import (MapLayerSerializer, )
 
 
-class LayerViewSet(viewsets.ModelViewSet):
+class MapLayerViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
-    model = Layer
-    queryset = Layer.objects.all()
-    serializer_class = LayerSerializer
+    model = MapLayer
+    queryset = MapLayer.objects.all()
+    serializer_class = MapLayerSerializer
     lookup_field = 'layer_uuid'
 
     def perform_create(self, serializer):
@@ -18,7 +18,7 @@ class LayerViewSet(viewsets.ModelViewSet):
         serializer.save(modified_by=self.request.user)
 
     def get_queryset(self):
-        return super(LayerViewSet, self).get_queryset().filter(
+        return super(MapLayerViewSet, self).get_queryset().filter(
             table__workspace__membership__user=self.request.user,
             table__workspace__membership__is_active=True
         )

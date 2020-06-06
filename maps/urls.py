@@ -1,7 +1,7 @@
 from rest_framework import routers
-from .views import (LayerViewSet,)
+from .views import (MapLayerViewSet,)
 
 router = routers.SimpleRouter()
 
-router.register('layer', LayerViewSet)
+router.register('maplayer', MapLayerViewSet)
 urlpatterns = router.urls

@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from .models import (Layer,)
+from .models import (MapLayer, )
 
 
-class LayerSerializer(serializers.ModelSerializer):
+class MapLayerSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     layer_uuid = serializers.ReadOnlyField()
 
     class Meta:
-        model = Layer
+        model = MapLayer
         fields = '__all__'

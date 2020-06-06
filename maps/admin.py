@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import Layer
+from .models import MapLayer
 
 
-@admin.register(Layer)
+@admin.register(MapLayer)
 class LayerAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'table', 'layer_type', 'created_by'
