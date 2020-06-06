@@ -5,6 +5,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 
+from simple_history.models import HistoricalRecords
+
 from core.models import (Workspace,)
 
 
@@ -30,12 +32,11 @@ class Table(models.Model):
     workspace = models.ForeignKey(
         Workspace, related_name='table_workspace', null=True, blank=True, on_delete=models.CASCADE
     )
-    create_date = models.DateTimeField(null=True)
+    create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(null=True)
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.create_date = timezone.now()
         self.update_date = timezone.now()
         return super(Table, self).save(*args, **kwargs)
 

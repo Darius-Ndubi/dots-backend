@@ -13,18 +13,11 @@ class MapLayerViewSet(viewsets.ModelViewSet):
     serializer_class = MapLayerSerializer
 
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('table__table_uuid', 'table__id',)
+    filterset_fields = ('table__table_uuid', 'table__id', 'table__workspace__id',)
 
     lookup_field = 'layer_uuid'
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
-    def perform_update(self, serializer):
-        serializer.save(modified_by=self.request.user)
 
-    def get_queryset(self):
-        return super(MapLayerViewSet, self).get_queryset().filter(
-            table__workspace__membership__user=self.request.user,
-            table__workspace__membership__is_active=True
-        )

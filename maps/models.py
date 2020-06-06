@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import (ArrayField)
 from django.utils import timezone
+from simple_history.models import HistoricalRecords
 
 from tables.models import (Table,)
 
@@ -38,17 +39,12 @@ class MapLayer(models.Model):
     created_by = models.ForeignKey(
         get_user_model(), related_name='created_last_modified_by_user', null=True, blank=True, on_delete=models.SET_NULL
     )
-    modified_by = models.ForeignKey(
-        get_user_model(), related_name='last_modified_by_user', null=True, blank=True, on_delete=models.SET_NULL
-    )
-    create_date = models.DateTimeField(null=True)
+    history = HistoricalRecords()
+    create_date = models.DateTimeField(default=timezone.now())
     modified_date = models.DateTimeField(null=True)
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            self.create_date = timezone.now()
         self.modified_date = timezone.now()
-
         return super(MapLayer, self).save(*args, **kwargs)
 
     def __str__(self):
