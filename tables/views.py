@@ -107,6 +107,3 @@ class ThirdPartyImportView(APIView):
         source_forms = get_data_source_forms(source)
         return Response(source_forms, status=status.HTTP_200_OK)
 
-
-
-

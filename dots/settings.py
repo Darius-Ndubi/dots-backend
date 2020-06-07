@@ -44,8 +44,10 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'simple_history',
+    'django_filters',
     'core',
-    'tables'
+    'tables',
+    'maps'
 ]
 
 MIDDLEWARE = [
@@ -156,6 +158,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.JSONParser',
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 SWAGGER_SETTINGS = {

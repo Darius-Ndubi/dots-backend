@@ -1,7 +1,13 @@
 import uuid
+
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
+
+from simple_history.models import HistoricalRecords
+
+from core.models import (Workspace,)
 
 
 TABLE_SOURCES = (
@@ -20,11 +26,19 @@ class Table(models.Model):
     table_uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=150)
     source = models.CharField(max_length=20, choices=TABLE_SOURCES)
-    unique_column = models.CharField(max_length=100, null=True, blank=True)
+    unique_column = models.CharField(max_length=100, blank=True, null=True)
     owner = models.ForeignKey(get_user_model(), null=True, blank=True, on_delete=models.SET_NULL)
     metadata = JSONField(null=True, blank=True)
-    create_date = models.DateTimeField(auto_now_add=True)
-    update_date = models.DateTimeField(auto_now=True)
+    workspace = models.ForeignKey(
+        Workspace, related_name='table_workspace', null=True, blank=True, on_delete=models.CASCADE
+    )
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(null=True)
+    history = HistoricalRecords()
+
+    def save(self, *args, **kwargs):
+        self.update_date = timezone.now()
+        return super(Table, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name}'
