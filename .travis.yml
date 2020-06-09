@@ -5,6 +5,8 @@ jobs:
   include:
     - stage: Build_and_test
       sudo: required
+      services:
+        - docker
     - script:
       - chmod +x ci-scripts/run_tests.sh && ./ci-scripts/run_tests.sh
 
@@ -21,7 +23,7 @@ jobs:
         - docker
     - script:
       - chmod +x ci-scripts/build_docker_image.sh && ./ci-scripts/build_docker_image.sh
-      
+
     - stage: Deploy
       services:
         - docker
