@@ -12,7 +12,11 @@ urlpatterns = [
     path('', include(api_router.urls)),
     path('user', views.UserView.as_view()),
     path('user/register', views.UserRegistrationView.as_view()),
+    path('user/invite/<slug:invitation_key>', views.UserInvitationView.as_view()),
     path('activate/<slug:activation_key>', views.UserActivationView.as_view()),
+    path('workspace/<int:workspace_id>/invite', views.WorkspaceInvitationView.as_view({
+        'get': 'list', 'post': 'create', 'delete': 'destroy'
+    })),
     path('workspace/<int:workspace_id>/users', views.WorkspaceUsersView.as_view({'get': 'list'})),
     path('workspace/<int:workspace_id>/set_default', views.WorkspaceSetDefaultView.as_view()),
     path('workspace/<int:workspace_id>/users/<int:pk>', views.WorkspaceUsersView.as_view({'patch': 'update'})),

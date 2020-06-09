@@ -19,3 +19,9 @@ def create_activation_key(user):
     hash_object = hashlib.md5(key.encode())
     key = hash_object.hexdigest()
     return UserActivation.objects.create(user=user, key=key)
+
+
+def create_invitation_key(email, workspace_id):
+    key = '{}-{}-{}'.format(workspace_id, email, random_string(8))
+    hash_object = hashlib.md5(key.encode())
+    return hash_object.hexdigest()

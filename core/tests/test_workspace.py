@@ -30,7 +30,7 @@ class WorkspaceTests(APITestCase):
         Membership.MEMBER
     )
     def test_workspace_roles(self, role):
-        ws = Workspace.objects.create(name='Test', slug='test')
+        ws = Workspace.objects.create(display_name='Test', name='test')
         Membership.objects.create(user=self.user, workspace=ws, role=role)
         response = self.client.get('/api/workspace', format='json')
         workspace = response.json()
@@ -39,7 +39,7 @@ class WorkspaceTests(APITestCase):
 
     def test_workspace_creator_as_owner(self):
         response = self.client.post('/api/workspace',
-                                    {"name": "Test", "slug": "test"},
+                                    {"display_name": "Test", "name": "test"},
                                     format='json')
         workspace = response.json()
         assert response.status_code == 201
@@ -48,14 +48,14 @@ class WorkspaceTests(APITestCase):
 
     def test_new_workspace_as_default(self):
         response = self.client.post('/api/workspace',
-                                    {"name": "Test", "slug": "test"},
+                                    {"display_name": "Test", "name": "test"},
                                     format='json')
         w1 = response.json()
         m = Membership.objects.filter(workspace=w1['id'], user=self.user).first()
         assert m.is_default
 
         response = self.client.post('/api/workspace',
-                                    {"name": "Test", "slug": "test-1"},
+                                    {"display_name": "Test", "name": "test-1"},
                                     format='json')
         w2 = response.json()
         m = Membership.objects.filter(workspace=w1['id'], user=self.user).first()
@@ -71,30 +71,30 @@ class WorkspaceTests(APITestCase):
     )
     @unpack
     def test_only_admin_can_update_workspace(self, role, allow_update):
-        ws = Workspace.objects.create(name='Test', slug='s')
+        ws = Workspace.objects.create(display_name='Test', name='s')
         Membership.objects.create(workspace=ws, user=self.user, role=role)
         response = self.client.patch(f'/api/workspace/{ws.id}',
-                                     {"name": "Test 1"}, format='json')
+                                     {"display_name": "Test 1"}, format='json')
         ws = response.json()
         if allow_update:
             assert response.status_code == 200
-            assert ws['name'] == 'Test 1'
+            assert ws['display_name'] == 'Test 1'
         else:
             assert response.status_code == 403
             assert ws['detail'] == 'You do not have permission to perform this action.'
 
     @data(
-        ('name', 'New Name', False),
+        ('display_name', 'New Name', False),
         ('description', 'WoW', False),
         ('location', 'Test', False),
-        ('url', 'http://google.com', False),
-        ('slug', 'new-slug', False),
+        ('website', 'http://google.com', False),
+        ('name', 'new-slug', False),
         ('is_default', False, True),
         ('role', Membership.OWNER, True),
     )
     @unpack
     def test_workspace_update(self, field, value, read_only):
-        ws = Workspace.objects.create(name='Test', slug='s')
+        ws = Workspace.objects.create(display_name='Test', name='s')
         ms = Membership.objects.create(workspace=ws, user=self.user, role=Membership.ADMIN)
 
         response = self.client.patch(f'/api/workspace/{ws.id}',
