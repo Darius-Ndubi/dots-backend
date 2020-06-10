@@ -1,10 +1,15 @@
+import csv
+
 from django.db import IntegrityError
+from django.http import HttpResponse
 
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+
+from rest_framework.decorators import action
 
 from django_filters.rest_framework import (DjangoFilterBackend,)
 
@@ -67,6 +72,39 @@ class TableViewSet(viewsets.ModelViewSet):
         if hasattr(self, 'action') and self.action == 'retrieve':
             return TableDetailSerializer
         return TableSerializer
+
+    @action(detail=True, methods=('POST',))
+    def csv_data(self):
+        # get the current table
+        table = self.get_object()
+
+        # get row_indexes for the request
+        data_ids = self.request.POST.get('rowIndexes', None)
+
+        if data_ids:
+            # establish a connection to mongo
+            mongo_client = connect_to_mongo()
+            connection = mongo_client[table.name.replace(' ', '_')]
+            data = connection.find_one(
+                {'table_uuid': table.table_uuid, 'data.row_index': {'$in': data_ids}},
+                {'row_index.$': {'$in': data_ids}}
+            )
+            if data:
+                csv_headers = list(data[0].keys())
+                # remove row_index from export
+                csv_headers.remove('row_index')
+
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = f'attachment; filename="{table.name.replace(" ", "_")}.csv"'
+                writer = csv.DictWriter(
+                    response,
+                    fieldnames=csv_headers
+                )
+                writer.writeheader()
+                for row in data:
+                    writer.writerow(row)
+
+                return response
 
 
 class TableGeoJsonView(APIView):
