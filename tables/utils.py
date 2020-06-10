@@ -2,6 +2,7 @@ import base64
 import io
 import csv
 import requests
+from typing import List
 
 from django.conf import settings as app_settings
 
@@ -17,6 +18,32 @@ def connect_to_mongo():
     db_client = mongo_client[app_settings.MONGO_DB_NAME]
 
     return db_client
+
+
+def clean_data_columns(data) -> List[dict]:
+    """
+    Clean data colums to conform to Mongo standards
+    :param data: with  malformed keys
+    :return data: with cleaned keys
+    """
+    try:
+        dict_keys = list(data[0].keys())
+
+        #  get labels to be updated
+        invalid_cols = [col for col in dict_keys if '.' in col or '$' in col]
+
+        #  update data columns
+        if invalid_cols:
+            for row in data:
+                for key in list(row.keys()):
+                    if '.' in key or '$' in key:
+                        new_key = key.replace('.', '_').replace('$', '_')
+                        row[new_key] = row[key]
+                        del row[key]
+        #  return data with updated keys
+        return data
+    except (IndexError, TypeError,):
+        return data
 
 
 def process_data(data, source):
@@ -43,17 +70,17 @@ def process_csv_data(data):
     """
     if data and data['value']:
         content = base64.b64decode(data['value'])
-        io_string = io.StringIO(content.decode("utf-8"))
+        io_string = io.StringIO(content.decode('utf-8', 'replace'))
         try:
             reader = csv.DictReader(io_string)
             dict_data = [row for row in reader]
         except Exception as e:
             raise Exception(e)
 
-        return dict_data
+        return clean_data_columns(dict_data)
 
     else:
-        raise KeyError('Could not find file information.')
+        raise KeyError('Could not find file data.')
 
 
 def generate_geojson_data(table):

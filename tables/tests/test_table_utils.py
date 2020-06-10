@@ -1,7 +1,7 @@
 from rest_framework.test import (APIClient, APITestCase)
 
 from django.contrib.auth import (get_user_model, )
-from tables.utils import (get_feature, )
+from tables.utils import (get_feature, clean_data_columns,)
 
 SAMPLE_TABLE_DATA = dict(
     metadata=dict(
@@ -73,3 +73,27 @@ class TableUtilsTestCase(APITestCase):
         self.assertIsNotNone(data)
         self.assertEqual(data, GEO_JSON_DATA['features'][0])
 
+    def test_clean_data_columns_with_data(self):
+        test_data = [
+            {'test$': 3, 'test.dot': 34},
+            {'test$dollar': 3, '.test': 34}
+        ]
+
+        clean_data = clean_data_columns(test_data)
+
+        self.assertEqual(
+            clean_data,
+            [
+                {'test_': 3, 'test_dot': 34},
+                {'test_dollar': 3, '_test': 34}
+            ]
+        )
+
+    def test_clean_data_columns_without_data(self):
+        test_data = []
+        clean_data = clean_data_columns(test_data)
+        self.assertEqual(clean_data, [])
+
+        test_data = None
+        clean_data = clean_data_columns(test_data)
+        self.assertEqual(clean_data, None)
