@@ -1,6 +1,7 @@
 from rest_framework.test import (APIClient, APITestCase)
 
 from django.contrib.auth import (get_user_model, )
+
 from tables.utils import (get_feature, clean_data_columns, )
 
 SAMPLE_TABLE_DATA = dict(
