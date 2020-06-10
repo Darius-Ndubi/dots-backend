@@ -11,13 +11,13 @@ from rest_framework.views import APIView
 
 from rest_framework.decorators import action
 
-from django_filters.rest_framework import (DjangoFilterBackend,)
+from django_filters.rest_framework import (DjangoFilterBackend, )
 
 from .models import Table
 from .serializers import (TableSerializer, TableDetailSerializer)
 from .utils import (
     process_data, connect_to_mongo, generate_geojson_data,
-    get_data_source_forms,
+    get_data_source_forms, fetch_mongo_data_by_row_indices,
 )
 
 
@@ -74,37 +74,41 @@ class TableViewSet(viewsets.ModelViewSet):
         return TableSerializer
 
     @action(detail=True, methods=('POST',))
-    def csv_data(self):
+    def csv_data(self, request, table_uuid=None):
         # get the current table
         table = self.get_object()
 
-        # get row_indexes for the request
-        data_ids = self.request.POST.get('rowIndexes', None)
-
-        if data_ids:
-            # establish a connection to mongo
-            mongo_client = connect_to_mongo()
-            connection = mongo_client[table.name.replace(' ', '_')]
-            data = connection.find_one(
-                {'table_uuid': table.table_uuid, 'data.row_index': {'$in': data_ids}},
-                {'row_index.$': {'$in': data_ids}}
-            )
-            if data:
-                csv_headers = list(data[0].keys())
-                # remove row_index from export
-                csv_headers.remove('row_index')
-
+        # get row_indexes from the request
+        row_indices = request.data.get('rowIndexes', None)
+        # get mongo data
+        data = fetch_mongo_data_by_row_indices(table, row_indices)
+        if row_indices:
+            if data is not None:
                 response = HttpResponse(content_type='text/csv')
                 response['Content-Disposition'] = f'attachment; filename="{table.name.replace(" ", "_")}.csv"'
-                writer = csv.DictWriter(
-                    response,
-                    fieldnames=csv_headers
-                )
-                writer.writeheader()
-                for row in data:
-                    writer.writerow(row)
+                if data:
+                    csv_headers = list(data[0].keys())
+                    # remove row_index from export
+                    csv_headers.remove('row_index')
+                    writer = csv.DictWriter(
+                        response,
+                        fieldnames=csv_headers
+                    )
+                    writer.writeheader()
+                    cleaned_data = [{k: v for k, v in d.items() if k != 'row_index'} for d in data]
+                    for row in cleaned_data:
+                        writer.writerow(row)
 
                 return response
+            else:
+                return Response(
+                    dict(detail='There is no collection for the passed table'),
+                    status.HTTP_400_BAD_REQUEST
+                )
+        return Response(
+            dict(detail='Pass row indices to be exported'),
+            status.HTTP_400_BAD_REQUEST
+        )
 
 
 class TableGeoJsonView(APIView):
@@ -148,4 +152,3 @@ class ThirdPartyImportView(APIView):
 
         source_forms = get_data_source_forms(source)
         return Response(source_forms, status=status.HTTP_200_OK)
-
