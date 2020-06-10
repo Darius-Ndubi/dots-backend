@@ -1,12 +1,13 @@
 from django.contrib.auth import get_user_model, user_logged_in
+from django.db.models import Q
 
 from rest_framework import serializers, exceptions
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_simplejwt import serializers as jwt_serializers
 
 from core.models import Workspace, Membership, WorkspaceInvitation, PasswordResetToken
-from core.util.emails import send_password_reset_email
-from core.util.key_generation import create_invitation_key, create_password_reset_key
+from core.util.emails import send_password_reset_email, send_activation_email
+from core.util.key_generation import create_invitation_key, create_password_reset_key, create_activation_key
 
 User = get_user_model()
 
@@ -232,3 +233,24 @@ class PasswordRestSerializer(serializers.Serializer):
         user.set_password(new_password)
         user.save()
         PasswordResetToken.objects.filter(user=user).delete()
+
+
+class ResendActivationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+
+    def validate(self, data):
+        username = data['username']
+        user = User.objects.filter(
+            Q(email__iexact=username) | Q(username__iexact=username)
+        ).first()
+        if user and user.is_active:
+            raise serializers.ValidationError('User already verified')
+
+        self.context['user'] = user
+        return super().validate(data)
+
+    def save(self):
+        user = self.context['user']
+        if user:
+            activation = create_activation_key(user)
+            send_activation_email(user, activation)
