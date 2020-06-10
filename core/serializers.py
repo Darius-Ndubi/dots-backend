@@ -145,3 +145,34 @@ class WorkspaceInvitationSerializer(serializers.ModelSerializer):
             data['email']
         )
         return super().validate(data)
+
+
+class PasswordUpdateSerializer(serializers.Serializer):
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        current_password = data['current_password']
+        new_password = data['new_password']
+        confirm_new_password = data['confirm_new_password']
+
+        user = self.context['request'].user
+        if not user.check_password(current_password):
+            raise serializers.ValidationError({
+                'current_password': "Current password isn't correct."
+            })
+
+        if confirm_new_password != new_password:
+            raise serializers.ValidationError("New passwords don't match.")
+
+        if current_password == new_password:
+            raise serializers.ValidationError("New password can't be same as current one.")
+
+        return super().validate(data)
+
+    def save(self):
+        new_password = self.validated_data['new_password']
+        user = self.context['request'].user
+        user.set_password(new_password)
+        user.save()

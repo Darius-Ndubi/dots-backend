@@ -177,3 +177,14 @@ class WorkspaceInvitationView(ListAPIView, CreateModelMixin, DestroyModelMixin, 
         invitation = serializer.save()
         send_invitation_email(invitation)
         return Response({}, status=status.HTTP_201_CREATED)
+
+
+class PasswordUpdateView(GenericAPIView):
+    serializer_class = serializers.PasswordUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
