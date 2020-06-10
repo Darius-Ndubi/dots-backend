@@ -97,10 +97,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
-# config for test db
-if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage
-    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
-    DATABASES['default']['NAME'] = ':memory:'
 
 # MongoDB settings
 MONGO_URI = os.environ.get('DOTS_MONGO_URI')
