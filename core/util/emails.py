@@ -48,3 +48,19 @@ def send_invitation_email(invitation):
         [invitation.email],
         html_message=msg_html,
     )
+
+
+def send_password_reset_email(user, reset_token):
+    msg_html = render_to_string(
+        'emails/password_reset.html',
+        {'user': user, 'BASE_URL': settings.BASE_URL,
+         'reset_key': reset_token.key}
+    )
+
+    send_mail(
+        'Reset Your Password',
+        msg_html,
+        settings.SENDER_EMAIL,
+        [user.email],
+        html_message=msg_html,
+    )

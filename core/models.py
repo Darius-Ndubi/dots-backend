@@ -59,3 +59,12 @@ class WorkspaceInvitation(models.Model):
 
     class Meta:
         unique_together = ['workspace', 'email']
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, related_name='reset_token', on_delete=models.CASCADE)
+    key = models.CharField(max_length=100)
+    history = HistoricalRecords()
+
+    class Meta:
+        unique_together = ['user', 'key']

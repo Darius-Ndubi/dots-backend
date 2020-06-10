@@ -2,7 +2,7 @@ import random
 import string
 import hashlib
 
-from core.models import UserActivation
+from core.models import UserActivation, PasswordResetToken
 
 
 def random_string(string_length=8):
@@ -25,3 +25,14 @@ def create_invitation_key(email, workspace_id):
     key = '{}-{}-{}'.format(workspace_id, email, random_string(8))
     hash_object = hashlib.md5(key.encode())
     return hash_object.hexdigest()
+
+
+def create_password_reset_key(user):
+    reset_token = PasswordResetToken.objects.filter(user=user).first()
+    if reset_token:
+        return reset_token
+
+    key = '{}-{}-{}'.format(user.id, user.email, random_string(8))
+    hash_object = hashlib.md5(key.encode())
+    key = hash_object.hexdigest()
+    return PasswordResetToken.objects.create(user=user, key=key)

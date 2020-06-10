@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model, user_logged_in
+from django.db.models import Q
 
 from rest_framework import serializers, exceptions
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework_simplejwt import serializers as jwt_serializers
 
-from core.models import Workspace, Membership, WorkspaceInvitation
-from core.util.key_generation import create_invitation_key
+from core.models import Workspace, Membership, WorkspaceInvitation, PasswordResetToken
+from core.util.emails import send_password_reset_email, send_activation_email
+from core.util.key_generation import create_invitation_key, create_password_reset_key, create_activation_key
 
 User = get_user_model()
 
@@ -145,3 +147,110 @@ class WorkspaceInvitationSerializer(serializers.ModelSerializer):
             data['email']
         )
         return super().validate(data)
+
+
+class PasswordUpdateSerializer(serializers.Serializer):
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        current_password = data['current_password']
+        new_password = data['new_password']
+        confirm_new_password = data['confirm_new_password']
+
+        user = self.context['request'].user
+        if not user.check_password(current_password):
+            raise serializers.ValidationError({
+                'current_password': "Current password isn't correct."
+            })
+
+        if confirm_new_password != new_password:
+            raise serializers.ValidationError("New passwords don't match.")
+
+        if current_password == new_password:
+            raise serializers.ValidationError("New password can't be same as current one.")
+
+        return super().validate(data)
+
+    def save(self):
+        new_password = self.validated_data['new_password']
+        user = self.context['request'].user
+        user.set_password(new_password)
+        user.save()
+
+
+class PasswordRestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=False)
+    token = serializers.CharField(required=False)
+    new_password = serializers.CharField(required=False)
+    confirm_new_password = serializers.CharField(required=False)
+
+    def validate(self, data):
+        email = data.get('email')
+        token = data.get('token')
+        if not token and not email:
+            raise serializers.ValidationError("Either token or email is required.")
+        if email:
+            user = User.objects.filter(email__iexact=email).first()
+            self.context['user'] = user
+            return super().validate(data)
+
+        new_password = data.get('new_password')
+        confirm_new_password = data.get('confirm_new_password')
+        if not new_password:
+            raise serializers.ValidationError({
+                'new_password': "New password is required."
+            })
+        if not confirm_new_password:
+            raise serializers.ValidationError({
+                'confirm_new_password': "Confirm new password is required."
+            })
+
+        if confirm_new_password != new_password:
+            raise serializers.ValidationError("New passwords don't match.")
+
+        token = PasswordResetToken.objects.filter(key=token).last()
+        if not token:
+            raise serializers.ValidationError({
+                'token': "Invalid or expired token."
+            })
+
+        self.context['user'] = token.user
+        return super().validate(data)
+
+    def save(self):
+        email = self.validated_data.get('email')
+        user = self.context['user']
+        if email:
+            if not user:
+                return
+            reset_token = create_password_reset_key(user)
+            send_password_reset_email(user, reset_token)
+            return
+
+        new_password = self.validated_data['new_password']
+        user.set_password(new_password)
+        user.save()
+        PasswordResetToken.objects.filter(user=user).delete()
+
+
+class ResendActivationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+
+    def validate(self, data):
+        username = data['username']
+        user = User.objects.filter(
+            Q(email__iexact=username) | Q(username__iexact=username)
+        ).first()
+        if user and user.is_active:
+            raise serializers.ValidationError('User already verified')
+
+        self.context['user'] = user
+        return super().validate(data)
+
+    def save(self):
+        user = self.context['user']
+        if user:
+            activation = create_activation_key(user)
+            send_activation_email(user, activation)
