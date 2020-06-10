@@ -225,6 +225,6 @@ def get_form_data(form_details, source):
             form_details.get('url'),
             headers=dict(Authorization=f'Token {app_settings.KOBO_API_KEY}')
         )
-        return data.json()
+        return clean_data_columns(data.json())
 
     return None
