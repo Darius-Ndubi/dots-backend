@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from tables.models import Table
+from core.models import (Workspace,)
 
 
 class TableViewTestCase(APITestCase):
@@ -24,7 +25,7 @@ class TableViewTestCase(APITestCase):
         'unique_column': '',
     }
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
             username='test',
@@ -32,7 +33,12 @@ class TableViewTestCase(APITestCase):
             password='567389'
         )
 
-    def test_post_table(self):
+        self.workspace: Workspace = Workspace.objects.create(
+            display_name='Test Name',
+            name='Test'
+        )
+
+    def test_post_table(self) -> None:
         """
         Test Table Post
         """
@@ -47,7 +53,7 @@ class TableViewTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_retrieve_table(self):
+    def test_retrieve_table(self) -> None:
         """
         Test Table Retrieve
         """
@@ -72,7 +78,7 @@ class TableViewTestCase(APITestCase):
         self.assertEqual(response.data['name'], 'Test Table')
         self.assertIsNotNone(response.data.get('data'))
 
-    def test_update_Table(self):
+    def test_update_Table(self) -> None:
         """
         Test Table Update
         """
@@ -92,7 +98,7 @@ class TableViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'Test Table Edited')
 
-    def test_list_table(self):
+    def test_list_table(self) -> None:
         """
         Test Table List
         """
@@ -104,6 +110,42 @@ class TableViewTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
+
+    def test_list_table_by_workspace_id(self) -> None:
+        """
+        Test Table List when workspace id is passed
+        """
+        self.client.force_authenticate(self.user)
+        # create first table
+        Table.objects.create(name='Test Table 1', source='kobo')
+
+        # create second table and tie it to Workspace
+        table_data = self.table.copy()
+        table_data.update(dict(workspace=self.workspace))
+        Table.objects.create(**table_data)
+
+        response = self.client.get(f'/api/tables/?workspace__id={self.workspace.id}')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_list_table_by_workspace_name(self) -> None:
+        """
+        Test Table List with workspace name
+        """
+        self.client.force_authenticate(self.user)
+        # create first table
+        Table.objects.create(name='Test Table 2', source='kobo')
+
+        # create second table and tie it to Workspace
+        table_data = self.table.copy()
+        table_data.update(dict(workspace=self.workspace))
+        Table.objects.create(**table_data)
+
+        response = self.client.get(f'/api/tables/?workspace__name={self.workspace.name}')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0].get('name'), 'Test Table')
 
     def test_delete_table(self):
         """

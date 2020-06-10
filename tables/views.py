@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 
+from django_filters.rest_framework import (DjangoFilterBackend,)
+
 from .models import Table
 from .serializers import (TableSerializer, TableDetailSerializer)
 from .utils import (
@@ -22,6 +24,8 @@ class TableViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Table.objects.all()
     serializer_class = TableSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('workspace__id', 'workspace__name',)
     lookup_field = 'table_uuid'
 
     def create(self, request, *args, **kwargs):
