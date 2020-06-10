@@ -23,8 +23,8 @@ class LayerViewTestCase(APITestCase):
         )
 
         self.workspace: Workspace = Workspace.objects.create(
-            name='Test Workspace',
-            slug='TestSlug'
+            display_name='Test Workspace',
+            name='TestSlug'
 
         )
 

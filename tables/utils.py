@@ -41,9 +41,20 @@ def clean_data_columns(data) -> List[dict]:
                         row[new_key] = row[key]
                         del row[key]
         #  return data with updated keys
-        return data
+        return add_row_index(data)
     except (IndexError, TypeError,):
         return data
+
+
+def add_row_index(data) -> List[dict]:
+    """
+    Add row index column to mongo data for ease of querying
+    :param data:
+    :return:
+    """
+    for index, item in enumerate(data):
+        item.update(dict(row_index=index))
+    return data
 
 
 def process_data(data, source):
@@ -214,6 +225,39 @@ def get_form_data(form_details, source):
             form_details.get('url'),
             headers=dict(Authorization=f'Token {app_settings.KOBO_API_KEY}')
         )
-        return data.json()
+        return clean_data_columns(data.json())
 
     return None
+
+
+def fetch_mongo_data_by_row_indices(table, row_indices):
+    """
+    filter rows from mongo
+    :param table:
+    :param row_indices:
+    :return:
+    """
+    # establish a connection to mongo
+    mongo_client = connect_to_mongo()
+    connection = mongo_client[table.name.replace(' ', '_')]
+
+    # fetch data from mongo filtering by IDs
+    mongo_cursor = connection.aggregate([
+        {'$match': {'table_uuid': str(table.table_uuid)}},
+        {
+            '$project': {
+                'data': {
+                    '$filter': {
+                        'input': '$data',
+                        'as': 'item',
+                        'cond': {'$in': ['$$item.row_index', row_indices]}
+                    }
+                }
+            }
+        }
+    ])
+
+    try:
+        return list(mongo_cursor)[0].get('data')
+    except IndexError:
+        return None
