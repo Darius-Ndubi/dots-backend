@@ -32,3 +32,19 @@ def send_activation_email(user, activation):
         [user.email],
         html_message=msg_html,
     )
+
+
+def send_invitation_email(invitation):
+    msg_html = render_to_string(
+        'emails/invitation.html',
+        {'BASE_URL': settings.BASE_URL,
+         'invitation': invitation}
+    )
+
+    send_mail(
+        'Dots Workspace Invitation',
+        msg_html,
+        settings.SENDER_EMAIL,
+        [invitation.email],
+        html_message=msg_html,
+    )
