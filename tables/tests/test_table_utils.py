@@ -1,7 +1,7 @@
 from rest_framework.test import (APIClient, APITestCase)
 
 from django.contrib.auth import (get_user_model, )
-from tables.utils import (get_feature, clean_data_columns,)
+from tables.utils import (get_feature, clean_data_columns, )
 
 SAMPLE_TABLE_DATA = dict(
     metadata=dict(
@@ -84,8 +84,8 @@ class TableUtilsTestCase(APITestCase):
         self.assertEqual(
             clean_data,
             [
-                {'test_': 3, 'test_dot': 34},
-                {'test_dollar': 3, '_test': 34}
+                {'test_': 3, 'test_dot': 34, 'row_index': 0},
+                {'test_dollar': 3, '_test': 34, 'row_index': 1}
             ]
         )
 

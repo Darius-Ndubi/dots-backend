@@ -41,9 +41,20 @@ def clean_data_columns(data) -> List[dict]:
                         row[new_key] = row[key]
                         del row[key]
         #  return data with updated keys
-        return data
+        return add_row_index(data)
     except (IndexError, TypeError,):
         return data
+
+
+def add_row_index(data) -> List[dict]:
+    """
+    Add row index column to mongo data for ease of querying
+    :param data:
+    :return:
+    """
+    for index, item in enumerate(data):
+        item.update(dict(row_index=index))
+    return data
 
 
 def process_data(data, source):
