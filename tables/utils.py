@@ -231,6 +231,12 @@ def get_form_data(form_details, source):
 
 
 def fetch_mongo_data_by_row_indices(table, row_indices):
+    """
+    filter rows from mongo
+    :param table:
+    :param row_indices:
+    :return:
+    """
     # establish a connection to mongo
     mongo_client = connect_to_mongo()
     connection = mongo_client[table.name.replace(' ', '_')]

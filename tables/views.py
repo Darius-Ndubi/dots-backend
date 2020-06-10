@@ -80,6 +80,7 @@ class TableViewSet(viewsets.ModelViewSet):
 
         # get row_indexes from the request
         row_indices = request.data.get('rowIndexes', None)
+
         # get mongo data
         data = fetch_mongo_data_by_row_indices(table, row_indices)
         if row_indices:
@@ -90,12 +91,16 @@ class TableViewSet(viewsets.ModelViewSet):
                     csv_headers = list(data[0].keys())
                     # remove row_index from export
                     csv_headers.remove('row_index')
+
+                    # write rows to the csv
                     writer = csv.DictWriter(
                         response,
                         fieldnames=csv_headers
                     )
                     writer.writeheader()
-                    cleaned_data = [{k: v for k, v in d.items() if k != 'row_index'} for d in data]
+
+                    # remove row_index from data
+                    cleaned_data = [{k: v for k, v in row.items() if k != 'row_index'} for row in data]
                     for row in cleaned_data:
                         writer.writerow(row)
 
