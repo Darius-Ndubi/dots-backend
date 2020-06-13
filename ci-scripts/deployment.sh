@@ -18,6 +18,7 @@ install_kubectl_doctl() {
         kubectl version --client
 
         # Install digital ocean cli tool
+        sudo apt-get install snapd -y
         sudo snap install doctl
         sudo snap connect doctl:kube-config
 
