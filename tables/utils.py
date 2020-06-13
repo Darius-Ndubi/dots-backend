@@ -230,34 +230,46 @@ def get_form_data(form_details, source):
     return None
 
 
-def fetch_mongo_data_by_row_indices(table, row_indices):
+def fetch_mongo_data_by_row_indices(table, columns=None, row_indices=None):
     """
     filter rows from mongo
     :param table:
     :param row_indices:
+    :param columns:
     :return:
     """
     # establish a connection to mongo
     mongo_client = connect_to_mongo()
     connection = mongo_client[table.name.replace(' ', '_')]
 
-    # fetch data from mongo filtering by IDs
-    mongo_cursor = connection.aggregate([
-        {'$match': {'table_uuid': str(table.table_uuid)}},
-        {
-            '$project': {
-                'data': {
-                    '$filter': {
-                        'input': '$data',
-                        'as': 'item',
-                        'cond': {'$in': ['$$item.row_index', row_indices]}
+    if columns and isinstance(columns, list):
+        column_map = {f'data.{column}': 1 for column in columns}
+        data = connection.find_one({'table_uuid': str(table.table_uuid)}, column_map)
+        return data.get('data')
+
+    elif row_indices and isinstance(row_indices, list):
+        # fetch data from mongo filtering by IDs
+        mongo_cursor = connection.aggregate([
+            {'$match': {'table_uuid': str(table.table_uuid)}},
+            {
+                '$project': {
+                    'data': {
+                        '$filter': {
+                            'input': '$data',
+                            'as': 'item',
+                            'cond': {'$in': ['$$item.row_index', row_indices]}
+                        }
                     }
                 }
-            }
-        }
-    ])
+            },
+            {'$project': {'data.row_index': 0}}
+        ])
 
-    try:
-        return list(mongo_cursor)[0].get('data')
-    except IndexError:
-        return None
+        try:
+            return list(mongo_cursor)[0].get('data')
+        except IndexError:
+            return None
+    else:
+        data = connection.find_one({'table_uuid': str(table.table_uuid)}, {'data.row_index': 0})
+        return data.get('data')
+

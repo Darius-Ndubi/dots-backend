@@ -79,41 +79,32 @@ class TableViewSet(viewsets.ModelViewSet):
         table = self.get_object()
 
         # get row_indexes from the request
-        row_indices = request.data.get('rowIndexes', None)
+        row_indices = request.data.get('rowIndices', None)
+        columns = request.data.get('columns', None)
 
         # get mongo data
-        data = fetch_mongo_data_by_row_indices(table, row_indices)
-        if row_indices:
-            if data is not None:
-                response = HttpResponse(content_type='text/csv')
-                response['Content-Disposition'] = f'attachment; filename="{table.name.replace(" ", "_")}.csv"'
-                if data:
-                    csv_headers = list(data[0].keys())
-                    # remove row_index from export
-                    csv_headers.remove('row_index')
-
-                    # write rows to the csv
-                    writer = csv.DictWriter(
-                        response,
-                        fieldnames=csv_headers
-                    )
-                    writer.writeheader()
-
-                    # remove row_index from data
-                    cleaned_data = [{k: v for k, v in row.items() if k != 'row_index'} for row in data]
-                    for row in cleaned_data:
-                        writer.writerow(row)
-
-                return response
-            else:
-                return Response(
-                    dict(detail='There is no collection for the passed table'),
-                    status.HTTP_400_BAD_REQUEST
+        data = fetch_mongo_data_by_row_indices(table, columns, row_indices)
+        if data is not None:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{table.name.replace(" ", "_")}.csv"'
+            if data:
+                csv_headers = list(data[0].keys())
+                # write rows to the csv
+                writer = csv.DictWriter(
+                    response,
+                    fieldnames=csv_headers
                 )
-        return Response(
-            dict(detail='Pass row indices to be exported'),
-            status.HTTP_400_BAD_REQUEST
-        )
+                writer.writeheader()
+
+                for row in data:
+                    writer.writerow(row)
+
+            return response
+        else:
+            return Response(
+                dict(detail='There is no collection for the passed table'),
+                status.HTTP_400_BAD_REQUEST
+            )
 
 
 class TableGeoJsonView(APIView):
