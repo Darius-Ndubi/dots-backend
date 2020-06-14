@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import (MapLayer, )
+from .utils import (get_layer_collection_name, connect_to_mongo,)
 
 
 class MapLayerSerializer(serializers.ModelSerializer):
@@ -13,17 +14,15 @@ class MapLayerSerializer(serializers.ModelSerializer):
 
 
 class MapLayerDetailSerializer(serializers.ModelSerializer):
-    geodata = serializers.SerializerMethodField(read_only=True)
+    geo_data = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = MapLayer
         fields = '__all__'
 
-    def get_data(self, obj):
+    def get_data(self, obj: MapLayer):
         mongo_client = connect_to_mongo()
-        connection = mongo_client[obj.name.replace(' ', '_')]
-        data = connection.find_one({'table_uuid': str(obj.table_uuid)})
-        # temporarily delete _id property
-        if data is not None:
-            del data['_id']
-        return data
+        connection = mongo_client[get_layer_collection_name(obj)]
+        data = connection.find_one({'layer_uuid': str(obj.layer_uuid)}, {'geo_data': 1})
+
+        return data.get('geo_data', None)

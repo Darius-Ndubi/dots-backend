@@ -1,9 +1,10 @@
 from rest_framework import (viewsets, permissions, )
 
-from django_filters.rest_framework import (DjangoFilterBackend,)
+from django_filters.rest_framework import (DjangoFilterBackend, )
 
 from .models import (MapLayer, )
-from .serializers import (MapLayerSerializer, )
+from .serializers import (MapLayerSerializer, MapLayerDetailSerializer)
+from .utils import (generate_geojson_point_data,)
 
 
 class MapLayerViewSet(viewsets.ModelViewSet):
@@ -18,6 +19,11 @@ class MapLayerViewSet(viewsets.ModelViewSet):
     lookup_field = 'layer_uuid'
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        layer = serializer.save(created_by=self.request.user)
+        # generate geojson data and save to Mongo
+        generate_geojson_point_data(layer)
 
-
+    def get_serializer_class(self):
+        if hasattr(self, 'action') and self.action == 'retrieve':
+            return MapLayerDetailSerializer
+        return MapLayerSerializer

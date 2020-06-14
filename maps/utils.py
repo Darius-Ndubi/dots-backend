@@ -44,8 +44,8 @@ def generate_geojson_point_data(layer: MapLayer) -> bool:
 
         # save collection data to Mongo
         try:
-            layer_connection = mongo_client[layer.name.replace(' ', '').replace('.', '').replace('$', '')]
-            layer_data = dict(layer_uuid=str(layer.layer_uuid), geodata=map_feat_collection)
+            layer_connection = mongo_client[get_layer_collection_name(layer)]
+            layer_data = dict(layer_uuid=str(layer.layer_uuid), geo_data=map_feat_collection)
             layer_connection.insert_one(layer_data)
         except Exception as e:
             raise Exception(e)
