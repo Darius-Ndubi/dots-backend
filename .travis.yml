@@ -3,12 +3,12 @@ language: minimal
 
 jobs:
   include:
-    - stage: Build_and_test
-      sudo: required
-      services:
-        - docker
-    - script:
-      - chmod +x ci-scripts/run_tests.sh && ./ci-scripts/run_tests.sh
+    # - stage: Build_and_test
+    #   sudo: required
+    #   services:
+    #     - docker
+    # - script:
+    #   - chmod +x ci-scripts/run_tests.sh && ./ci-scripts/run_tests.sh
 
     - stage: Setup_infrastructure
     - script:
