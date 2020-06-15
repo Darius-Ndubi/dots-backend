@@ -3,6 +3,8 @@ from rest_framework import serializers
 from .models import Table
 from .utils import connect_to_mongo
 
+from tables.models import Table
+
 
 class TableSerializer(serializers.ModelSerializer):
     table_uuid = serializers.ReadOnlyField()
@@ -15,6 +17,7 @@ class TableSerializer(serializers.ModelSerializer):
 
 class TableDetailSerializer(serializers.ModelSerializer):
     data = serializers.SerializerMethodField(read_only=True)
+    owner = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Table
@@ -29,5 +32,8 @@ class TableDetailSerializer(serializers.ModelSerializer):
             del data['_id']
         return data
 
-
-
+    def get_owner(self, obj):
+        """
+        Replace the `owner` attribute with the username of the user
+        """
+        return obj.owner.username
