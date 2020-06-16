@@ -26,8 +26,9 @@ class TableDetailSerializer(serializers.ModelSerializer):
         data = connection.find_one({'table_uuid': str(obj.table_uuid)})
         # temporarily delete _id property
         if data is not None:
-            del data['_id']
-        return data.get('data')
+            return data.get('data')
+
+        return None
 
 
 

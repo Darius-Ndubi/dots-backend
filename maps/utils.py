@@ -11,47 +11,54 @@ def generate_geojson_point_data(layer: MapLayer) -> bool:
     # connect to mongo and get data
     mongo_client = connect_to_mongo()
     connection = mongo_client['dots_data']
-    data = connection.find_one({'table_uuid': str(layer.table.table_uuid)}).get('data')
+    document = connection.find_one({'table_uuid': str(layer.table.table_uuid)})
 
-    longitude_field = layer.longitude_field
-    latitude_field = layer.latitude_field
-    geo_location_field = layer.geo_point_field
-    map_tool_tip_fields = layer.tool_tip_fields
-    get_features = []
+    data = None
+    if document:
+        data = document.get('data', None)
 
-    if (longitude_field and latitude_field) or geo_location_field:
+    if data:
+        longitude_field = layer.longitude_field
+        latitude_field = layer.latitude_field
+        geo_location_field = layer.geo_point_field
+        map_tool_tip_fields = layer.tool_tip_fields
+        get_features = []
 
-        for row in data:
-            feature = get_feature(
-                row,
-                longitude_field,
-                latitude_field,
-                geo_location_field,
-                map_tool_tip_fields
-            )
-            if feature is not None:
-                get_features.append(feature)
+        if (longitude_field and latitude_field) or geo_location_field:
 
-        map_feat_collection = dict(
-            type='FeatureCollection',
-            features=get_features
-        )
-
-        # save collection data to Mongo
-        try:
-            layer_connection = mongo_client['dots_layer_data']
-            layer_data = dict(
-                layer_uuid=str(layer.layer_uuid),
-                geo_data=dict(
-                    geo_json_feature=map_feat_collection,
-                    geo_json_layer=get_point_layer(layer)
+            for row in data:
+                feature = get_feature(
+                    row,
+                    longitude_field,
+                    latitude_field,
+                    geo_location_field,
+                    map_tool_tip_fields
                 )
-            )
-            layer_connection.insert_one(layer_data)
-        except Exception as e:
-            raise Exception(e)
+                if feature is not None:
+                    get_features.append(feature)
 
-        return True
+            map_feat_collection = dict(
+                type='FeatureCollection',
+                features=get_features
+            )
+
+            # save collection data to Mongo
+            try:
+                layer_connection = mongo_client['dots_layer_data']
+                layer_data = dict(
+                    layer_uuid=str(layer.layer_uuid),
+                    geo_data=dict(
+                        geo_json_feature=map_feat_collection,
+                        geo_json_layer=get_point_layer(layer)
+                    )
+                )
+                layer_connection.insert_one(layer_data)
+            except Exception as e:
+                raise Exception(e)
+
+            return True
+
+        return False
 
 
 def get_feature(row, longitude_field=None, latitude_field=None, geo_field=None, map_tool_tip_fields=None) -> dict:

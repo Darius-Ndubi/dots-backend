@@ -24,5 +24,6 @@ class MapLayerDetailSerializer(serializers.ModelSerializer):
         mongo_client = connect_to_mongo()
         connection = mongo_client['dots_layer_data']
         data = connection.find_one({'layer_uuid': str(obj.layer_uuid)}, {'geo_data': 1})
-
-        return data.get('geo_data', None)
+        if data:
+            return data.get('geo_data', None)
+        return None
