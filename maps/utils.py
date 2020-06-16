@@ -4,9 +4,9 @@ from tables.utils import (connect_to_mongo, )
 
 def generate_geojson_point_data(layer: MapLayer) -> bool:
     """
-    generate Geojson data from table data
+    generate Geojson Point data based on layer configs
     :layer: map layer
-    :return: Geojson dict data
+    :return: bool
     """
     # connect to mongo and get data
     mongo_client = connect_to_mongo()
@@ -108,10 +108,10 @@ def get_point_layer(layer: MapLayer) -> dict:
     """
     Get point map layer
     :param layer:
-    :return:
+    :return point_layer: point layer dict
     """
     point_color = layer.layer_colors[0] if layer.layer_colors else '#33CCCC'
-    map_layer = {
+    point_layer = {
         'id': f'point_layer_{layer.id}',
         'type': 'circle',
         'layout': {},
@@ -119,4 +119,30 @@ def get_point_layer(layer: MapLayer) -> dict:
             'circle-color': point_color
         }
     }
-    return map_layer
+    return point_layer
+
+
+def get_polygon_layer(layer: MapLayer) -> dict:
+    """
+    configure polygon layer
+    :param layer:
+    :return polygon_layer: polygon layer dict
+    """
+    # Set layer color to Hikaya default colors
+    polygon_colors = ['#EBEBFF', '#3333FF']
+
+    if layer.layer_colors:
+        polygon_colors = [layer.layer_colors[0], layer.layer_colors[1]]
+
+    polygon_layer = {
+        'id': f'polygon_layer_{layer.id}',
+        'type': 'fill',
+        'layout': {},
+        'paint': {
+            'fill-color': polygon_colors[0],
+            'fill-opacity': 0.5,
+            'fill-outline-color': polygon_colors[1]
+        }
+    }
+
+    return polygon_layer
