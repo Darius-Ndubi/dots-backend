@@ -8,14 +8,9 @@ def generate_geojson_point_data(layer: MapLayer) -> bool:
     :layer: map layer
     :return: Geojson dict data
     """
-    try:
-        collection_name = layer.table.name.replace(' ', '_')
-    except AttributeError:
-        collection_name = layer.get('table').get('name').replace(' ', '_')
-
     # connect to mongo and get data
     mongo_client = connect_to_mongo()
-    connection = mongo_client[collection_name]
+    connection = mongo_client['dots_data']
     data = connection.find_one({'table_uuid': str(layer.table.table_uuid)}).get('data')
 
     longitude_field = layer.longitude_field
@@ -44,8 +39,14 @@ def generate_geojson_point_data(layer: MapLayer) -> bool:
 
         # save collection data to Mongo
         try:
-            layer_connection = mongo_client[get_layer_collection_name(layer)]
-            layer_data = dict(layer_uuid=str(layer.layer_uuid), geo_data=map_feat_collection)
+            layer_connection = mongo_client['dots_layer_data']
+            layer_data = dict(
+                layer_uuid=str(layer.layer_uuid),
+                geo_data=dict(
+                    geo_json_feature=map_feat_collection,
+                    geo_json_layer=get_point_layer(layer)
+                )
+            )
             layer_connection.insert_one(layer_data)
         except Exception as e:
             raise Exception(e)
@@ -89,7 +90,6 @@ def get_feature(row, longitude_field=None, latitude_field=None, geo_field=None, 
     properties = dict(icon='rocket')
     for field in map_tool_tip_fields:
         properties.update({field: row.get(field, None)})
-    properties = {}
 
     # return None if there is no geometry value for the feature
     if geometry is None:
@@ -104,10 +104,19 @@ def get_feature(row, longitude_field=None, latitude_field=None, geo_field=None, 
     return map_feature
 
 
-def get_layer_collection_name(layer: MapLayer) -> str:
+def get_point_layer(layer: MapLayer) -> dict:
     """
-    construct layer geodata collection name
+    Get point map layer
     :param layer:
     :return:
     """
-    return f'{layer.name}_{layer.id}'.replace(' ', '').replace('.', '').replace('$', '')
+    point_color = layer.layer_colors[0] if layer.layer_colors else '#33CCCC'
+    map_layer = {
+        'id': f'point_layer_{layer.id}',
+        'type': 'circle',
+        'layout': {},
+        'paint': {
+            'circle-color': point_color
+        }
+    }
+    return map_layer

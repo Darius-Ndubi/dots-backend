@@ -19,9 +19,10 @@ class MapLayerViewSet(viewsets.ModelViewSet):
     lookup_field = 'layer_uuid'
 
     def perform_create(self, serializer):
-        layer = serializer.save(created_by=self.request.user)
+        layer: MapLayer = serializer.save(created_by=self.request.user)
         # generate geojson data and save to Mongo
-        generate_geojson_point_data(layer)
+        if layer.layer_type == 'point':
+            generate_geojson_point_data(layer)
 
     def get_serializer_class(self):
         if hasattr(self, 'action') and self.action == 'retrieve':

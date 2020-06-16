@@ -56,7 +56,7 @@ class TableViewSet(viewsets.ModelViewSet):
                 'table_uuid': str(serializer.data.get('table_uuid'))
             }
             mongo_client = connect_to_mongo()
-            connection = mongo_client[request_data.get('name').replace(' ', '_')]
+            connection = mongo_client['dots_data']
             connection.insert_one(mongo_data)
 
             return Response(
