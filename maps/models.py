@@ -43,6 +43,7 @@ class AdminBoundary(models.Model):
     name = models.CharField(max_length=120)
     country = models.CharField(max_length=100, blank=True)
     boundary_code = models.CharField(max_length=36, blank=True)
+    country_code = models.CharField(max_length=8, blank=True)
     properties = ArrayField(models.CharField(max_length=256, blank=True), null=True)
     geojson_url = models.CharField(max_length=256, blank=True)
     workspace = models.ForeignKey(Workspace, null=True, on_delete=models.SET_NULL)
