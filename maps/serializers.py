@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from .models import (MapLayer, )
-from .utils import (connect_to_mongo,)
+from .models import (MapLayer, AdminBoundary, )
+from .utils import (connect_to_mongo, )
 
 
 class MapLayerSerializer(serializers.ModelSerializer):
@@ -27,3 +27,9 @@ class MapLayerDetailSerializer(serializers.ModelSerializer):
         if data:
             return data.get('geo_data', None)
         return None
+
+
+class AdminBoundarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminBoundary
+        fields = '__all__'

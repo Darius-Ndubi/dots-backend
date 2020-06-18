@@ -49,7 +49,7 @@ class AdminBoundary(models.Model):
     geojson_file = models.FileField(null=True, upload_to=get_geo_json_file_path)
     boundary_type = models.CharField(max_length=50, choices=BOUNDARY_TYPES, default='country')
     created_by = models.ForeignKey(
-        get_user_model(), related_name='created_by_user', null=True, blank=True, on_delete=models.SET_NULL
+        get_user_model(), related_name='admin_boundary_created_by_user', null=True, blank=True, on_delete=models.SET_NULL
     )
     history = HistoricalRecords()
     create_date = models.DateTimeField(default=timezone.now())
@@ -85,7 +85,7 @@ class MapLayer(models.Model):
     layer_type = models.CharField(choices=LAYER_TYPES, max_length=50)
     aggregation_criteria = models.CharField(choices=AGGREGATION_CRITERIA, max_length=50, blank=True)
     created_by = models.ForeignKey(
-        get_user_model(), related_name='created_by_user', null=True, blank=True, on_delete=models.SET_NULL
+        get_user_model(), related_name='map_layer_created_by_user', null=True, blank=True, on_delete=models.SET_NULL
     )
     history = HistoricalRecords()
     create_date = models.DateTimeField(default=timezone.now())
