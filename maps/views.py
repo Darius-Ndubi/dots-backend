@@ -2,9 +2,9 @@ from rest_framework import (viewsets, permissions, )
 
 from django_filters.rest_framework import (DjangoFilterBackend, )
 
-from .models import (MapLayer, )
-from .serializers import (MapLayerSerializer, MapLayerDetailSerializer)
-from .utils import (generate_geojson_point_data,)
+from .models import (MapLayer, AdminBoundary, )
+from .serializers import (MapLayerSerializer, MapLayerDetailSerializer, AdminBoundarySerializer, )
+from .utils import (generate_geojson_point_data, )
 
 
 class MapLayerViewSet(viewsets.ModelViewSet):
@@ -28,3 +28,18 @@ class MapLayerViewSet(viewsets.ModelViewSet):
         if hasattr(self, 'action') and self.action == 'retrieve':
             return MapLayerDetailSerializer
         return MapLayerSerializer
+
+
+class AdminBoundaryViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    model = AdminBoundary
+    queryset = AdminBoundary.objects.all()
+    serializer_class = AdminBoundarySerializer
+
+    filter_backends = (DjangoFilterBackend,)
+
+    filterset_fields = ('workspace__id',)
+    lookup_field = 'boundary_uuid'
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
