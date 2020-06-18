@@ -94,19 +94,14 @@ def process_csv_data(data):
         raise KeyError('Could not find file data.')
 
 
-def generate_geojson_data(table):
+def generate_geojson_data(table,):
     """
     generate Geojson data from table data
     :param table:
     :return: Geojson dict data
     """
-    try:
-        collection_name = table.name.replace(' ', '_')
-    except AttributeError:
-        collection_name = table.get('name').replace(' ', '_')
-
     mongo_client = connect_to_mongo()
-    connection = mongo_client[collection_name]
+    connection = mongo_client['dots_data']
     data = connection.find_one({'table_uuid': str(table.table_uuid)}).get('data')
     longitude_field = table.metadata.get('longitude_field', None)
     latitude_field = table.metadata.get('latitude_field', None)

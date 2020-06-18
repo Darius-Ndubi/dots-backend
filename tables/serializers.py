@@ -22,12 +22,13 @@ class TableDetailSerializer(serializers.ModelSerializer):
 
     def get_data(self, obj):
         mongo_client = connect_to_mongo()
-        connection = mongo_client[obj.name.replace(' ', '_')]
+        connection = mongo_client['dots_data']
         data = connection.find_one({'table_uuid': str(obj.table_uuid)})
         # temporarily delete _id property
         if data is not None:
-            del data['_id']
-        return data
+            return data.get('data')
+
+        return None
 
 
 
