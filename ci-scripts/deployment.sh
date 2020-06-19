@@ -5,7 +5,8 @@ set +ex
 #@--- install kubectl and doctl ---@#
 install_kubectl_doctl() {
     if [[ $TRAVIS_BRANCH == "dev" ]] || \
-        [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+        [[ $TRAVIS_BRANCH == "ISS-171-A" ]] || \
+        [[ ! -z $TRAVIS_TAG ]]; then
         echo "++++++++++++ install kubectl ++++++++++++"
         curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 
@@ -33,7 +34,8 @@ install_kubectl_doctl() {
 auth_kubectl_cluster() {
     # Authenticate kubectl to the cluster
     if [[ $TRAVIS_BRANCH == "dev" ]] || \
-        [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+        [[ $TRAVIS_BRANCH == "ISS-171-A" ]] || \
+        [[ ! -z $TRAVIS_TAG ]]; then
         doctl auth init -t $SERVICE_ACCESS_TOKEN
         doctl -t $SERVICE_ACCESS_TOKEN kubernetes cluster kubeconfig save $CLUSTER_NAME
         kubectl create namespace $APPLICATION_ENV || echo "++++++ Namespace Exists ++++++"
@@ -45,6 +47,7 @@ auth_kubectl_cluster() {
 
     echo "+++ Kubectl installed and configured to the cluster +++++"
 }
+# [[ ! -z $TRAVIS_TAG ]]
 
 #@--- Clone infrastructure repo ---@#
 clone_deployfiles_repo() {
@@ -63,7 +66,8 @@ deploy_app() {
         --type=kubernetes.io/dockerconfigjson -n $APPLICATION_ENV
 
     if [[ $TRAVIS_BRANCH == "dev" ]] || \
-        [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+        [[ $TRAVIS_BRANCH == "ISS-171-A" ]] || \
+        [[ ! -z $TRAVIS_TAG ]]; then
         echo "------- generate deployfiles --------------"
         envsubst < ./api/deployment-limits > deployment.yaml
         envsubst < ./api/service > service.yaml
@@ -109,11 +113,19 @@ replace_variables() {
     fi
 
     #@--- Replace necesary variables for staging  env ---@#
-    if [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+    if [[ $TRAVIS_BRANCH == "ISS-171-A" ]]; then
         export CLUSTER_NAME=${CLUSTER_NAME_STAGING}
         export HOST_DOMAIN_WEB=${HOST_DOMAIN_WEB_STAGING}
         export HOST_DOMAIN_API=${HOST_DOMAIN_API_STAGING}
         export APPLICATION_ENV=${APPLICATION_ENV_STAGING}
+    fi
+
+    #@--- Replace necesary variables for staging  env ---@#
+    if [[ ! -z $TRAVIS_TAG ]]; then
+        export CLUSTER_NAME=${CLUSTER_NAME_PROD}
+        export HOST_DOMAIN_WEB=${HOST_DOMAIN_WEB_PROD}
+        export HOST_DOMAIN_API=${HOST_DOMAIN_API_PROD}
+        export APPLICATION_ENV=${APPLICATION_ENV_PROD}
     fi
 
 }
