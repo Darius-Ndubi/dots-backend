@@ -48,7 +48,7 @@ set_up_cluster_dev_env() {
 #@--- Function to setup staging cluster ---@#
 set_up_cluster_staging() {
 
-    if [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+    if [[ $TRAVIS_BRANCH == "ISS-171-A" ]]; then
 
         #@--- Initialize terraform ---@#
         echo " +++++++ Initialize the backend ++++++++++ "
@@ -94,43 +94,45 @@ set_up_cluster_staging() {
 #@--- Function to setup production cluster cluster ---@#
 set_up_cluster_production() {
 
-    if [[ ! -z $TRAVIS_TAG ]]; then
+    if [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+
+        sed -i "s/node_count = 1/node_count = 2/" main.tf
 
         #@--- Initialize terraform ---@#
         echo " +++++++ Initialize the backend ++++++++++ "
         terraform init -backend-config "bucket=$BACKEND_BUCKET" \
-            -backend-config "key=$STATE_FILE_STAGING" \
+            -backend-config "key=$STATE_FILE_PROD" \
             -backend-config "access_key=$SPACES_ACCESS_KEY" \
             -backend-config "secret_key=$SPACES_SECRET_KEY"
 
         #@--- Run terraform command to plan infrastructure ---@#
         echo "----- show plan -------------------"
         terraform plan -lock=false \
-            -var "cluster_name=$CLUSTER_NAME_STAGING" \
+            -var "cluster_name=$CLUSTER_NAME_PROD" \
             -var "cluster_region=$CLUSTER_REGION" \
-            -var "kubernetes_version=$K8S_VERSION_STAGING" \
-            -var "node_type=$NODE_TYPE_STAGING" \
-            -var "max_node_number=$MAX_NODE_NUM_STAGING" \
-            -var "min_node_number=$MIN_NODE_NUM_STAGING" \
+            -var "kubernetes_version=$K8S_VERSION_PROD" \
+            -var "node_type=$NODE_TYPE_PROD" \
+            -var "max_node_number=$MAX_NODE_NUM_PROD" \
+            -var "min_node_number=$MIN_NODE_NUM_PROD" \
             -var "digital_ocean_token=$SERVICE_ACCESS_TOKEN" \
-            -var "db_size=$DB_SIZE" \
+            -var "db_size=$DB_SIZE_PROD" \
             -var "postgres_version=$PG_VERSION" \
-            -var "db_name=$DB_NAME_STAGING" \
+            -var "db_name=$DB_NAME_PROD" \
             -var "tags=$PROJECT_NAME"
 
         #@--- Apply the changes ---@#
         echo "+++++ Apply infrastructure ++++++++++"
-        terraform apply -lock=false -auto-approve \
-            -var "cluster_name=$CLUSTER_NAME_STAGING" \
+        terraform destroy -lock=false -auto-approve \
+            -var "cluster_name=$CLUSTER_NAME_PROD" \
             -var "cluster_region=$CLUSTER_REGION" \
-            -var "kubernetes_version=$K8S_VERSION_STAGING" \
-            -var "node_type=$NODE_TYPE_STAGING" \
-            -var "max_node_number=$MAX_NODE_NUM_STAGING" \
-            -var "min_node_number=$MIN_NODE_NUM_STAGING" \
+            -var "kubernetes_version=$K8S_VERSION_PROD" \
+            -var "node_type=$NODE_TYPE_PROD" \
+            -var "max_node_number=$MAX_NODE_NUM_PROD" \
+            -var "min_node_number=$MIN_NODE_NUM_PROD" \
             -var "digital_ocean_token=$SERVICE_ACCESS_TOKEN" \
-            -var "db_size=$DB_SIZE" \
+            -var "db_size=$DB_SIZE_PROD" \
             -var "postgres_version=$PG_VERSION" \
-            -var "db_name=$DB_NAME_STAGING" \
+            -var "db_name=$DB_NAME_PROD" \
             -var "tags=$PROJECT_NAME" \
             || echo "Resources exist"
     fi
