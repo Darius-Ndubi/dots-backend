@@ -26,8 +26,8 @@ export_variables() {
 build_and_push_image() {
 
     #@--- Build image for deployment ---@#
-    echo "++++++++ Start building dev image +++++++++"
     if [[ $TRAVIS_BRANCH == "dev" ]]; then
+        echo "++++++++ Start building dev image +++++++++"
 
         #@--- Run export function ---@#
         export_variables
@@ -54,8 +54,8 @@ build_and_push_image() {
     fi
 
     #@--- Build staging image for deployment ---@#
-    echo "++++++++ Start building staging image +++++++++"
-    if [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+    if [[ $TRAVIS_BRANCH == "ISS-171-A" ]]; then
+        echo "++++++++ Start building staging image +++++++++"
 
         #@--- Run export function ---@#
         export_variables
@@ -71,6 +71,37 @@ build_and_push_image() {
         echo export KOBO_URI=${KOBO_URI_STAGING} >> .env.local
         echo export KOBO_API_KEY=${KOBO_API_KEY_STAGING} >> .env.local
         export APPLICATION_ENV=${APPLICATION_ENV_STAGING} >> .env.local
+
+
+        docker build -t $REGISTRY_OWNER/activity:$APPLICATION_NAME-$APPLICATION_ENV-$TRAVIS_COMMIT -f .docker/Dockerfile .
+        echo "-------- Building Image Done! ----------"
+
+        echo "++++++++++++ Push Image built -------"
+        docker push $REGISTRY_OWNER/activity:$APPLICATION_NAME-$APPLICATION_ENV-$TRAVIS_COMMIT
+
+    fi
+
+    #@--- Build production image for deployment ---@#
+    if [[ $TRAVIS_BRANCH == "ISS-171" ]]; then
+        echo "++++++++ Start building production image +++++++++"
+
+        #@--- Run export function ---@#
+        export_variables
+
+        # Set debug to false
+        sed -i "s/DEBUG = True/DEBUG = False/" dots/settings.py
+
+        echo export SECRET_KEY=${SECRET_KEY_STAGING} >> .env.local
+        echo export DB_NAME=${DB_NAME_STAGING} >> .env.local
+        echo export DB_USER=${DB_USER_DEV} >> .env.local
+        echo export DB_PASSWORD=${DB_PASSWORD_DEV} >> .env.local
+        echo export DB_HOST=${DB_HOST_DEV} >> .env.local
+        echo export DOTS_MONGO_URI=${DOTS_MONGO_URI_STAGING} >> .env.local
+        echo export DOTS_MONGO_DB_NAME=${DOTS_MONGO_DB_NAME_STAGING} >> .env.local
+        echo export BASE_URL=${BASE_URL_STAGING} >> .env.local
+        echo export KOBO_URI=${KOBO_URI_STAGING} >> .env.local
+        echo export KOBO_API_KEY=${KOBO_API_KEY_STAGING} >> .env.local
+        export APPLICATION_ENV=${APPLICATION_ENV_PROD} >> .env.local
 
 
         docker build -t $REGISTRY_OWNER/activity:$APPLICATION_NAME-$APPLICATION_ENV-$TRAVIS_COMMIT -f .docker/Dockerfile .

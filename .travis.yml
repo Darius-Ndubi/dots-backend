@@ -10,13 +10,13 @@ jobs:
     # - script:
     #   - chmod +x ci-scripts/run_tests.sh && ./ci-scripts/run_tests.sh
 
-    - stage: Setup_infrastructure
-    - script:
-      - export VER="0.12.21"
-      - wget https://releases.hashicorp.com/terraform/${VER}/terraform_${VER}_linux_amd64.zip
-      - unzip terraform_${VER}_linux_amd64.zip
-      - sudo mv terraform /usr/local/bin/
-      - chmod +x ci-scripts/create_infrastructure.sh && ./ci-scripts/create_infrastructure.sh
+    # - stage: Setup_infrastructure
+    # - script:
+    #   - export VER="0.12.21"
+    #   - wget https://releases.hashicorp.com/terraform/${VER}/terraform_${VER}_linux_amd64.zip
+    #   - unzip terraform_${VER}_linux_amd64.zip
+    #   - sudo mv terraform /usr/local/bin/
+    #   - chmod +x ci-scripts/create_infrastructure.sh && ./ci-scripts/create_infrastructure.sh
 
     - stage: Build_docker_image
       services:
@@ -24,9 +24,9 @@ jobs:
     - script:
       - chmod +x ci-scripts/build_docker_image.sh && ./ci-scripts/build_docker_image.sh
 
-    - stage: Deploy
-      services:
-        - docker
-    - script:
-      - export FILE_PATH="/home/travis/.docker/config.json"
-      - chmod +x ci-scripts/deployment.sh && ./ci-scripts/deployment.sh
+    # - stage: Deploy
+    #   services:
+    #     - docker
+    # - script:
+    #   - export FILE_PATH="/home/travis/.docker/config.json"
+    #   - chmod +x ci-scripts/deployment.sh && ./ci-scripts/deployment.sh

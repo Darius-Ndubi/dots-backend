@@ -91,6 +91,52 @@ set_up_cluster_staging() {
 
 }
 
+#@--- Function to setup production cluster cluster ---@#
+set_up_cluster_production() {
+
+    if [[ ! -z $TRAVIS_TAG ]]; then
+
+        #@--- Initialize terraform ---@#
+        echo " +++++++ Initialize the backend ++++++++++ "
+        terraform init -backend-config "bucket=$BACKEND_BUCKET" \
+            -backend-config "key=$STATE_FILE_STAGING" \
+            -backend-config "access_key=$SPACES_ACCESS_KEY" \
+            -backend-config "secret_key=$SPACES_SECRET_KEY"
+
+        #@--- Run terraform command to plan infrastructure ---@#
+        echo "----- show plan -------------------"
+        terraform plan -lock=false \
+            -var "cluster_name=$CLUSTER_NAME_STAGING" \
+            -var "cluster_region=$CLUSTER_REGION" \
+            -var "kubernetes_version=$K8S_VERSION_STAGING" \
+            -var "node_type=$NODE_TYPE_STAGING" \
+            -var "max_node_number=$MAX_NODE_NUM_STAGING" \
+            -var "min_node_number=$MIN_NODE_NUM_STAGING" \
+            -var "digital_ocean_token=$SERVICE_ACCESS_TOKEN" \
+            -var "db_size=$DB_SIZE" \
+            -var "postgres_version=$PG_VERSION" \
+            -var "db_name=$DB_NAME_STAGING" \
+            -var "tags=$PROJECT_NAME"
+
+        #@--- Apply the changes ---@#
+        echo "+++++ Apply infrastructure ++++++++++"
+        terraform apply -lock=false -auto-approve \
+            -var "cluster_name=$CLUSTER_NAME_STAGING" \
+            -var "cluster_region=$CLUSTER_REGION" \
+            -var "kubernetes_version=$K8S_VERSION_STAGING" \
+            -var "node_type=$NODE_TYPE_STAGING" \
+            -var "max_node_number=$MAX_NODE_NUM_STAGING" \
+            -var "min_node_number=$MIN_NODE_NUM_STAGING" \
+            -var "digital_ocean_token=$SERVICE_ACCESS_TOKEN" \
+            -var "db_size=$DB_SIZE" \
+            -var "postgres_version=$PG_VERSION" \
+            -var "db_name=$DB_NAME_STAGING" \
+            -var "tags=$PROJECT_NAME" \
+            || echo "Resources exist"
+    fi
+
+}
+
 
 #@--- Clone infrastructure repo ---@#
 clone_infrastructure_repo() {
@@ -112,6 +158,9 @@ main() {
 
         #@--- Run function for staging cluster ---@#
         set_up_cluster_staging
+
+        #@--- Run function for production cluster ---@#
+        set_up_cluster_production
 
     fi
 
